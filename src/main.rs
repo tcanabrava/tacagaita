@@ -29,11 +29,18 @@ fn main() {
     unsafe { gl::Viewport(0, 0, width, height) };
 
     while !window.should_close() {
+        unsafe {
+            gl::ClearColor(0.2, 0.3, 0.3, 1.0);
+            gl::Clear(gl::COLOR_BUFFER_BIT);
+        }
+
         window.swap_buffers();
         glfw.poll_events();
+
         for (_, event) in glfw::flush_messages(&events) {
             handle_window_event(&mut window, event);
         }
+
     }
 }
 
@@ -43,12 +50,16 @@ trait WindowEventHandler {
 }
 
 impl WindowEventHandler for glfw::Window{
-    fn key_event(self: &mut Self, key: Key, _scancode: i32, _action: Action, _modifiers: glfw::Modifiers) {
-        match key {
-            Key::Escape => { self.set_should_close(true); }
-            _ => { println!("Outra tecla tocada"); }
+    fn key_event(self: &mut Self, key: Key, _scancode: i32, action: Action, _modifiers: glfw::Modifiers) {
+        match (key, action) {
+            (Key::Escape, Action::Press) => {
+                println!("Closing Window");
+                self.set_should_close(true);
+            }
+            _ => {}
         }
     }
+
     fn resize_event(self: &mut Self, width: i32, height: i32) {
         unsafe { gl::Viewport(0, 0, width, height) };
     }
@@ -67,7 +78,6 @@ fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
             println!("Refresh requested");
         }
         glfw::WindowEvent::FramebufferSize(width, height) => {
-            // println!("Resized to {0}, {1}", width, height);
             unsafe { gl::Viewport(0, 0, width, height) };
         }
         _ => {}
