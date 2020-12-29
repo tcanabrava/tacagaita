@@ -1,5 +1,7 @@
 extern crate glfw;
 extern crate gl;
+use std::ffi::{CString, CStr, c_void};
+
 // include the OpenGL type aliases
 use gl::types::*;
 
@@ -27,6 +29,56 @@ fn main() {
 
     let(width, height) = window.get_framebuffer_size();
     unsafe { gl::Viewport(0, 0, width, height) };
+
+    let triangulo : Vec<f32> = vec![
+        -0.5, 0.5, 0.0,
+        0.5, 0.5, 0.0,
+        0.0, 0.5, 0.0
+    ];
+
+    let mut vbo: gl::types::GLuint = 0;
+    let vertex_shader = unsafe { gl::CreateShader(gl::VERTEX_SHADER) };
+
+    let shader_app = include_str!("shaders/triangle.glsl");
+    let shader_app_c_str = CString::new(shader_app)
+        .expect("Error transforming.");
+
+    unsafe {
+        println!("Setting up shader source");
+        gl::ShaderSource(vertex_shader, 1, &shader_app_c_str.as_ptr(), std::ptr::null());
+
+        println!("Compilling shader");
+        gl::CompileShader(vertex_shader);
+
+        // Check shader compilation error.
+        println!("Chekcing for shader errors");
+        let mut check_error = 0;
+        gl::GetShaderiv(vertex_shader, gl::COMPILE_STATUS, &mut check_error);
+        if check_error == 0 {
+            println!("Shader compilation error");
+            let mut error_length: i32 = 0;
+            gl::GetShaderiv(vertex_shader, gl::INFO_LOG_LENGTH, &mut error_length);
+
+            let mut error_string = Vec::with_capacity(error_length as usize + 1);
+            error_string.extend([b' '].iter().cycle().take(error_length as usize));
+
+            let error_cstring = CString::from_vec_unchecked(error_string);
+
+            gl::GetShaderInfoLog(vertex_shader, error_length, std::ptr::null_mut(), error_cstring.as_ptr() as *mut gl::types::GLchar);
+            println!("{:?}", error_cstring);
+        } else {
+            println!("No shader errors reported");
+        }
+
+        gl::GenBuffers(1,  &mut vbo);
+        gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
+        gl::BufferData(
+            gl::ARRAY_BUFFER,
+            (triangulo.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+            triangulo.as_ptr() as *const gl::types::GLvoid,
+            gl::STATIC_DRAW
+        );
+    };
 
     while !window.should_close() {
         unsafe {
