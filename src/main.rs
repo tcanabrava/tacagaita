@@ -38,33 +38,23 @@ fn main() {
 
     let mut vbo: gl::types::GLuint = 0;
     let vertex_shader = unsafe { gl::CreateShader(gl::VERTEX_SHADER) };
-
-    let shader_app = include_str!("shaders/triangle.glsl");
+    let shader_app = include_str!("shaders/triangle_vertex_shader.glsl");
     let shader_app_c_str = CString::new(shader_app)
         .expect("Error transforming.");
 
+    let fragment_shader_id = unsafe { gl::CreateShader(gl::FRAGMENT_SHADER) };
+    let fragment_shader_app = include_str!("shaders/triangle_fragment_shader.glsl");
+    let fragment_shader_app_c_str = CString::new(fragment_shader_app)
+        .expect("Error transforming");
+
     unsafe {
-        println!("Setting up shader source");
         gl::ShaderSource(vertex_shader, 1, &shader_app_c_str.as_ptr(), std::ptr::null());
-
-        println!("Compilling shader");
         gl::CompileShader(vertex_shader);
+        check_errors(vertex_shader);
 
-        // Check shader compilation error.
-        println!("Chekcing for shader errors");
-        let mut check_error = 0;
-        gl::GetShaderiv(vertex_shader, gl::COMPILE_STATUS, &mut check_error);
-        if check_error == 0 {
-            println!("Shader compilation error");
-            let mut error_length: i32 = 0;
-            gl::GetShaderiv(vertex_shader, gl::INFO_LOG_LENGTH, &mut error_length);
-            let error_string = c_str_with_size(error_length as usize);
-
-            gl::GetShaderInfoLog(vertex_shader, error_length, std::ptr::null_mut(), error_string.as_ptr() as *mut gl::types::GLchar);
-            println!("{:?}", error_string);
-        } else {
-            println!("No shader errors reported");
-        }
+        gl::ShaderSource(fragment_shader_id, 1, &fragment_shader_app_c_str.as_ptr(), std::ptr::null());
+        gl::CompileShader(fragment_shader_id);
+        check_errors(fragment_shader_id);
 
         gl::GenBuffers(1,  &mut vbo);
         gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
@@ -96,6 +86,25 @@ fn c_str_with_size(size :usize) -> CString {
     let mut error_string = Vec::with_capacity(size as usize + 1);
     error_string.extend([b' '].iter().cycle().take(size as usize));
     return unsafe { CString::from_vec_unchecked(error_string) }
+}
+
+fn check_errors(shader_id: u32) {
+    // Check shader compilation error.
+    let mut check_error = 0;
+    unsafe {gl::GetShaderiv(shader_id, gl::COMPILE_STATUS, &mut check_error); }
+
+    if check_error == 0 {
+        println!("Compilation error");
+        let mut error_length: i32 = 0;
+        unsafe { gl::GetShaderiv(shader_id, gl::INFO_LOG_LENGTH, &mut error_length); }
+        let error_string = c_str_with_size(error_length as usize);
+
+        unsafe {
+            gl::GetShaderInfoLog(shader_id, error_length, std::ptr::null_mut(), error_string.as_ptr() as *mut gl::types::GLchar);
+        }
+
+        println!("{:?}", error_string);
+    }
 }
 
 trait WindowEventHandler {
