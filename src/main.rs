@@ -58,14 +58,10 @@ fn main() {
             println!("Shader compilation error");
             let mut error_length: i32 = 0;
             gl::GetShaderiv(vertex_shader, gl::INFO_LOG_LENGTH, &mut error_length);
+            let error_string = c_str_with_size(error_length as usize);
 
-            let mut error_string = Vec::with_capacity(error_length as usize + 1);
-            error_string.extend([b' '].iter().cycle().take(error_length as usize));
-
-            let error_cstring = CString::from_vec_unchecked(error_string);
-
-            gl::GetShaderInfoLog(vertex_shader, error_length, std::ptr::null_mut(), error_cstring.as_ptr() as *mut gl::types::GLchar);
-            println!("{:?}", error_cstring);
+            gl::GetShaderInfoLog(vertex_shader, error_length, std::ptr::null_mut(), error_string.as_ptr() as *mut gl::types::GLchar);
+            println!("{:?}", error_string);
         } else {
             println!("No shader errors reported");
         }
@@ -94,6 +90,12 @@ fn main() {
         }
 
     }
+}
+
+fn c_str_with_size(size :usize) -> CString {
+    let mut error_string = Vec::with_capacity(size as usize + 1);
+    error_string.extend([b' '].iter().cycle().take(size as usize));
+    return unsafe { CString::from_vec_unchecked(error_string) }
 }
 
 trait WindowEventHandler {
