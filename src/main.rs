@@ -11,8 +11,8 @@ fn main() {
 
     let (mut window, events) 
         = glfw.create_window(
-            300,
-            300,
+            800,
+            600,
             "Hello this is window",
             glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
