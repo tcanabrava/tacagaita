@@ -1,9 +1,6 @@
 extern crate glfw;
 extern crate gl;
-use std::ffi::{CString, CStr, c_void};
-
-// include the OpenGL type aliases
-use gl::types::*;
+use std::ffi::{CString, c_void};
 
 use glfw::{Action, Context, Key};
 
