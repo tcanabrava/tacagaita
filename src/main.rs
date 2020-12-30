@@ -115,9 +115,9 @@ fn main() {
 }
 
 fn c_str_with_size(size :usize) -> CString {
-    let mut error_string = Vec::with_capacity(size as usize + 1);
-    error_string.extend([b' '].iter().cycle().take(size as usize));
-    return unsafe { CString::from_vec_unchecked(error_string) }
+    let mut buffer = Vec::with_capacity(size as usize + 1);
+    buffer.extend([b' '].iter().cycle().take(size as usize));
+    return unsafe { CString::from_vec_unchecked(buffer) }
 }
 
 fn check_compile_errors(shader_id: u32) {
