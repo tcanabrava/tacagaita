@@ -15,23 +15,15 @@ fn main() {
     let (mut window, events) = create_window(&mut glfw);
 
     let fragment_shader = Shader::from_fragment_src(
-        include_str!("shaders/triangle_fragment_shader.glsl"))
-            .expect("Error returning the fragment shader");
+    include_str!("shaders/triangle_fragment_shader.glsl"))
+        .expect("Error returning the fragment shader");
 
     let vertex_shader = Shader::from_vertex_src(
-        include_str!("shaders/triangle_vertex_shader.glsl"))
-            .expect("Error returning the vertex shader");
+    include_str!("shaders/triangle_vertex_shader.glsl"))
+        .expect("Error returning the vertex shader");
 
-    let shader_program_id : u32 = unsafe { gl::CreateProgram() };
-
-    unsafe {
-        gl::AttachShader(shader_program_id, vertex_shader.id);
-        gl::AttachShader(shader_program_id, fragment_shader.id);
-        gl::LinkProgram(shader_program_id);
-        check_link_errors(shader_program_id);
-        gl::DetachShader(shader_program_id, vertex_shader.id);
-        gl::DetachShader(shader_program_id, fragment_shader.id);
-    }
+    let gl_program = GLProgram::from_shaders(&[fragment_shader, vertex_shader])
+        .expect("Error creating the gl program");
 
     let vertices: Vec<f32> = vec![
         -0.5, -0.5, 0.0,
@@ -89,7 +81,7 @@ fn main() {
 
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT);
-            gl::UseProgram(shader_program_id);
+            gl::UseProgram(gl_program.id());
             gl::BindVertexArray(vao);
             gl::DrawArrays(gl::TRIANGLES, 0, 3);
         }
@@ -118,27 +110,6 @@ fn create_window(glfw: &mut glfw::Glfw) -> (glfw::Window, std::sync::mpsc::Recei
     window.make_current();
 
     return (window, events);
-}
-
-fn check_link_errors(program_id: u32) {
-    let mut check_error = 0;
-    unsafe {gl::GetProgramiv(program_id, gl::LINK_STATUS, &mut check_error); }
-
-    if check_error == 0 {
-        println!("link errors");
-        let mut error_length: i32 = 0;
-        unsafe { gl::GetProgramiv(program_id, gl::INFO_LOG_LENGTH, &mut error_length); }
-        let error_string = c_str_with_size(error_length as usize);
-
-        unsafe {
-            gl::GetShaderInfoLog(program_id, error_length, std::ptr::null_mut(),
-                error_string.as_ptr() as *mut gl::types::GLchar);
-        }
-
-        println!("{:?}", error_string);
-    } else {
-        println!("Shader program compiled without issues");
-    }
 }
 
 trait WindowEventHandler {
