@@ -23,15 +23,17 @@ fn main() {
         .expect("Error creating the gl program");
 
     let vertices: Vec<f32> = vec![
-         0.5,  0.5, 0.0,
-         0.5, -0.5, 0.0,
-        -0.5, -0.5, 0.0,
-        -0.5,  0.5, 0.0
+        -0.1,  -0.2, 0.0,
+        -0.15, -0.1, 0.0,
+        -0.2, -0.2, 0.0,
+         0.1,  -0.2, 0.0,
+         0.15, -0.1, 0.0,
+         0.2,  -0.2, 0.0
     ];
 
     let indexes: Vec<i32> = vec![
-        0,1,3,
-        1,2,3
+        0,1,2,
+        3,4,5
     ];
 
     // Creates a vbo and binds the data to an array_buffer.
