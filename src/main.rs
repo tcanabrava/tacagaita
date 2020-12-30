@@ -12,23 +12,7 @@ use crate::helpers::*;
 
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
-    glfw.window_hint(glfw::WindowHint::ContextVersion(3,3));
-    glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
-
-    let (mut window, events)
-        = glfw.create_window(
-            800,
-            600,
-            "Hello this is window",
-            glfw::WindowMode::Windowed)
-        .expect("Failed to create GLFW window.");
-
-    gl::load_with(|symbol| window.get_proc_address(symbol) as *const _);
-
-    window.set_title("Hello this is window");
-    window.set_key_polling(true);
-    window.set_framebuffer_size_polling(true);
-    window.make_current();
+    let (mut window, events) = create_window(&mut glfw);
 
     let(width, height) = window.get_framebuffer_size();
     unsafe { gl::Viewport(0, 0, width, height) };
@@ -49,8 +33,6 @@ fn main() {
 
     let shader_program_id : u32 = unsafe { gl::CreateProgram() };
 
-    // Compile and links the program.
-    // TODO: Transform this to a function
     unsafe {
         gl::AttachShader(shader_program_id, vertex_shader.id);
         gl::AttachShader(shader_program_id, fragment_shader.id);
@@ -107,6 +89,28 @@ fn main() {
 
         window.swap_buffers();
     }
+}
+
+fn create_window(glfw: &mut glfw::Glfw) -> (glfw::Window, std::sync::mpsc::Receiver<(f64, glfw::WindowEvent)>){
+    glfw.window_hint(glfw::WindowHint::ContextVersion(3,3));
+    glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
+
+    let (mut window, events)
+        = glfw.create_window(
+            800,
+            600,
+            "Hello this is window",
+            glfw::WindowMode::Windowed)
+        .expect("Failed to create GLFW window.");
+
+    gl::load_with(|symbol| window.get_proc_address(symbol) as *const _);
+
+    window.set_title("Hello this is window");
+    window.set_key_polling(true);
+    window.set_framebuffer_size_polling(true);
+    window.make_current();
+
+    return (window, events);
 }
 
 fn check_link_errors(program_id: u32) {
