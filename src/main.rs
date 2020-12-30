@@ -1,14 +1,11 @@
 extern crate glfw;
 extern crate gl;
-use std::ffi::{c_void};
 
 use glfw::{Action, Context, Key};
 
 mod shader;
-use crate::shader::*;
-
+use shader::*;
 mod helpers;
-use crate::helpers::*;
 
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
