@@ -42,16 +42,8 @@ fn main() {
     // VBOs are a way to upload data to the video card
     // and that speeds up a lot of the processing time.
     let mut vbo: gl::types::GLuint = 0;
-
-    // Creates a vao and let it store the "cache" for the
-    // vbo, aparently I'll need to have one of those for each vbo.
-    let mut vao: gl::types::GLuint = 0;
-
     unsafe {
-        gl::GenVertexArrays(1, &mut vao);
         gl::GenBuffers(1,  &mut vbo);
-
-        gl::BindVertexArray(vao);
         gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
         gl::BufferData(
             gl::ARRAY_BUFFER,
@@ -59,16 +51,28 @@ fn main() {
             vertices.as_ptr() as *const gl::types::GLvoid,
             gl::STATIC_DRAW
         );
+        gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+    }
 
+    // Creates a vao and let it store the "cache" for the
+    // vbo, aparently I'll need to have one of those for each vbo.
+    let mut vao: gl::types::GLuint = 0;
+    unsafe {
+        gl::GenVertexArrays(1, &mut vao);
+        gl::BindVertexArray(vao);
+
+        gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
         gl::EnableVertexAttribArray(0);
         gl::VertexAttribPointer(
             0,                                      // Index of the array.
             3,                                      // number of points to consider inside of the array.
             gl::FLOAT,                              // type of the data
             gl::FALSE,                              // Dados tem que ser normalizados? (entre -1.0f e 1.0f)
-            3 * std::mem::size_of::<f32>() as i32,  // size of each "block" of data
-            0 as *const c_void                      // where the data begins, inside of the array
+            3 * std::mem::size_of::<f32>() as gl::types::GLint,  // size of each "block" of data
+            std::ptr::null()                      // where the data begins, inside of the array
         );
+        gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+        gl::BindVertexArray(0);
     };
 
     let(width, height) = window.get_framebuffer_size();
@@ -132,6 +136,8 @@ fn check_link_errors(program_id: u32) {
         }
 
         println!("{:?}", error_string);
+    } else {
+        println!("Shader program compiled without issues");
     }
 }
 
