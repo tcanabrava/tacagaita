@@ -1,15 +1,21 @@
 extern crate glfw;
 extern crate gl;
-use std::ffi::{CString, c_void};
+use std::ffi::{c_void};
 
 use glfw::{Action, Context, Key};
+
+mod shader;
+use crate::shader::*;
+
+mod helpers;
+use crate::helpers::*;
 
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
     glfw.window_hint(glfw::WindowHint::ContextVersion(3,3));
     glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
 
-    let (mut window, events) 
+    let (mut window, events)
         = glfw.create_window(
             800,
             600,
@@ -24,7 +30,6 @@ fn main() {
     window.set_framebuffer_size_polling(true);
     window.make_current();
 
-
     let(width, height) = window.get_framebuffer_size();
     unsafe { gl::Viewport(0, 0, width, height) };
 
@@ -34,37 +39,27 @@ fn main() {
         0.0, 0.5, 0.0
     ];
 
-    let vertex_shader_id: u32 = unsafe { gl::CreateShader(gl::VERTEX_SHADER) };
-    let shader_app :&str = include_str!("shaders/triangle_vertex_shader.glsl");
-    let shader_app_c_str = CString::new(shader_app)
-        .expect("Error transforming.");
+    let fragment_shader = Shader::from_fragment_src(
+        include_str!("shaders/triangle_fragment_shader.glsl"))
+            .expect("Error returning the fragment shader");
 
-    let fragment_shader_id: u32 = unsafe { gl::CreateShader(gl::FRAGMENT_SHADER) };
-    let fragment_shader_app: &str = include_str!("shaders/triangle_fragment_shader.glsl");
-    let fragment_shader_app_c_str = CString::new(fragment_shader_app)
-        .expect("Error transforming");
+    let vertex_shader = Shader::from_vertex_src(
+        include_str!("shaders/triangle_vertex_shader.glsl"))
+            .expect("Error returning the vertex shader");
 
     let shader_program_id : u32 = unsafe { gl::CreateProgram() };
 
     // Compile and links the program.
     // TODO: Transform this to a function
     unsafe {
-        gl::ShaderSource(vertex_shader_id, 1, &shader_app_c_str.as_ptr(), std::ptr::null());
-        gl::CompileShader(vertex_shader_id);
-        check_compile_errors(vertex_shader_id);
-
-        gl::ShaderSource(fragment_shader_id, 1, &fragment_shader_app_c_str.as_ptr(), std::ptr::null());
-        gl::CompileShader(fragment_shader_id);
-        check_compile_errors(fragment_shader_id);
-
-        gl::AttachShader(shader_program_id, vertex_shader_id);
-        gl::AttachShader(shader_program_id, fragment_shader_id);
+        gl::AttachShader(shader_program_id, vertex_shader.id);
+        gl::AttachShader(shader_program_id, fragment_shader.id);
         gl::LinkProgram(shader_program_id);
         check_link_errors(shader_program_id);
     }
 
     // Creates a vbo and binds the data to an array_buffer.
-    // VBOs are a way to upload data to the video card 
+    // VBOs are a way to upload data to the video card
     // and that speeds up a lot of the processing time.
     let mut vbo: gl::types::GLuint = 0;
 
@@ -111,36 +106,6 @@ fn main() {
         }
 
         window.swap_buffers();
-    }
-
-    unsafe {
-        gl::DeleteShader(fragment_shader_id);
-        gl::DeleteShader(vertex_shader_id);
-    }
-}
-
-fn c_str_with_size(size :usize) -> CString {
-    let mut buffer = Vec::with_capacity(size as usize + 1);
-    buffer.extend([b' '].iter().cycle().take(size as usize));
-    return unsafe { CString::from_vec_unchecked(buffer) }
-}
-
-fn check_compile_errors(shader_id: u32) {
-    let mut check_error = 0;
-    unsafe { gl::GetShaderiv(shader_id, gl::COMPILE_STATUS, &mut check_error); }
-
-    if check_error == 0 {
-        println!("Compilation error");
-        let mut error_length: i32 = 0;
-        unsafe { gl::GetShaderiv(shader_id, gl::INFO_LOG_LENGTH, &mut error_length); }
-        let error_string = c_str_with_size(error_length as usize);
-
-        unsafe {
-            gl::GetShaderInfoLog(shader_id, error_length, std::ptr::null_mut(),
-                error_string.as_ptr() as *mut gl::types::GLchar);
-        }
-
-        println!("{:?}", error_string);
     }
 }
 
