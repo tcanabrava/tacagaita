@@ -14,15 +14,6 @@ fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
     let (mut window, events) = create_window(&mut glfw);
 
-    let(width, height) = window.get_framebuffer_size();
-    unsafe { gl::Viewport(0, 0, width, height) };
-
-    let triangulo : Vec<f32> = vec![
-        -0.5, 0.5, 0.0,
-        0.5, 0.5, 0.0,
-        0.0, 0.5, 0.0
-    ];
-
     let fragment_shader = Shader::from_fragment_src(
         include_str!("shaders/triangle_fragment_shader.glsl"))
             .expect("Error returning the fragment shader");
@@ -42,6 +33,11 @@ fn main() {
         gl::DetachShader(shader_program_id, fragment_shader.id);
     }
 
+    let vertices: Vec<f32> = vec![
+        -0.5, -0.5, 0.0,
+         0.5, -0.5, 0.0,
+          0.0, 0.5, 0.0];
+
     // Creates a vbo and binds the data to an array_buffer.
     // VBOs are a way to upload data to the video card
     // and that speeds up a lot of the processing time.
@@ -59,8 +55,8 @@ fn main() {
         gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
         gl::BufferData(
             gl::ARRAY_BUFFER,
-            (triangulo.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-            triangulo.as_ptr() as *const gl::types::GLvoid,
+            (vertices.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+            vertices.as_ptr() as *const gl::types::GLvoid,
             gl::STATIC_DRAW
         );
 
@@ -75,6 +71,12 @@ fn main() {
         );
     };
 
+    let(width, height) = window.get_framebuffer_size();
+    unsafe {
+        gl::Viewport(0, 0, width, height);
+        gl::ClearColor(0.8, 0.3, 0.3, 1.0);
+    }
+
     while !window.should_close() {
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
@@ -82,7 +84,6 @@ fn main() {
         }
 
         unsafe {
-            gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
             gl::UseProgram(shader_program_id);
             gl::BindVertexArray(vao);
