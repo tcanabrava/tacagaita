@@ -94,25 +94,25 @@ fn main() {
             3 * std::mem::size_of::<f32>() as i32,  // size of each "block" of data
             0 as *const c_void                      // where the data begins, inside of the array
         );
-
-        gl::UseProgram(shader_program_id);
-
     };
 
     while !window.should_close() {
-        unsafe {
-            gl::ClearColor(0.2, 0.3, 0.3, 1.0);
-            gl::Clear(gl::COLOR_BUFFER_BIT);
-        }
-
-        window.swap_buffers();
         glfw.poll_events();
-
         for (_, event) in glfw::flush_messages(&events) {
             handle_window_event(&mut window, event);
         }
 
+        unsafe {
+            gl::ClearColor(0.2, 0.3, 0.3, 1.0);
+            gl::Clear(gl::COLOR_BUFFER_BIT);
+            gl::UseProgram(shader_program_id);
+            gl::BindVertexArray(vao);
+            gl::DrawArrays(gl::TRIANGLES, 0, 3);
+        }
+
+        window.swap_buffers();
     }
+
     unsafe {
         gl::DeleteShader(fragment_shader_id);
         gl::DeleteShader(vertex_shader_id);
