@@ -36,26 +36,41 @@ fn main() {
         0.0, 0.5, 0.0
     ];
 
-    let mut vbo: gl::types::GLuint = 0;
-    let vertex_shader = unsafe { gl::CreateShader(gl::VERTEX_SHADER) };
-    let shader_app = include_str!("shaders/triangle_vertex_shader.glsl");
+    let vertex_shader_id: u32 = unsafe { gl::CreateShader(gl::VERTEX_SHADER) };
+    let shader_app :&str = include_str!("shaders/triangle_vertex_shader.glsl");
     let shader_app_c_str = CString::new(shader_app)
         .expect("Error transforming.");
 
-    let fragment_shader_id = unsafe { gl::CreateShader(gl::FRAGMENT_SHADER) };
-    let fragment_shader_app = include_str!("shaders/triangle_fragment_shader.glsl");
+    let fragment_shader_id: u32 = unsafe { gl::CreateShader(gl::FRAGMENT_SHADER) };
+    let fragment_shader_app: &str = include_str!("shaders/triangle_fragment_shader.glsl");
     let fragment_shader_app_c_str = CString::new(fragment_shader_app)
         .expect("Error transforming");
 
+    let shader_program_id : u32 = unsafe { gl::CreateProgram() };
+
+    // Compile and links the program.
+    // TODO: Transform this to a function
     unsafe {
-        gl::ShaderSource(vertex_shader, 1, &shader_app_c_str.as_ptr(), std::ptr::null());
-        gl::CompileShader(vertex_shader);
-        check_errors(vertex_shader);
+        gl::ShaderSource(vertex_shader_id, 1, &shader_app_c_str.as_ptr(), std::ptr::null());
+        gl::CompileShader(vertex_shader_id);
+        check_compile_errors(vertex_shader_id);
 
         gl::ShaderSource(fragment_shader_id, 1, &fragment_shader_app_c_str.as_ptr(), std::ptr::null());
         gl::CompileShader(fragment_shader_id);
-        check_errors(fragment_shader_id);
+        check_compile_errors(fragment_shader_id);
 
+        gl::AttachShader(shader_program_id, vertex_shader_id);
+        gl::AttachShader(shader_program_id, fragment_shader_id);
+        gl::LinkProgram(shader_program_id);
+        check_link_errors(shader_program_id);
+    }
+
+    // Creates a vbo and binds the data to an array_buffer.
+    // VBOs are a way to upload data to the video card 
+    // and that speeds up a lot of the processing time.
+    let mut vbo: gl::types::GLuint = 0;
+
+    unsafe {
         gl::GenBuffers(1,  &mut vbo);
         gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
         gl::BufferData(
@@ -64,6 +79,19 @@ fn main() {
             triangulo.as_ptr() as *const gl::types::GLvoid,
             gl::STATIC_DRAW
         );
+
+        gl::EnableVertexAttribArray(0);
+        gl::VertexAttribPointer(
+            0,                                      // Index of the array.
+            3,                                      // number of points to consider inside of the array.
+            gl::FLOAT,                              // type of the data
+            gl::FALSE,                              // Dados tem que ser normalizados? (entre -1.0f e 1.0f)
+            3 * std::mem::size_of::<f32>() as i32,  // size of each "block" of data
+            0 as *const c_void                      // where the data begins, inside of the array
+        );
+
+        gl::UseProgram(shader_program_id);
+
     };
 
     while !window.should_close() {
@@ -80,6 +108,10 @@ fn main() {
         }
 
     }
+    unsafe {
+        gl::DeleteShader(fragment_shader_id);
+        gl::DeleteShader(vertex_shader_id);
+    }
 }
 
 fn c_str_with_size(size :usize) -> CString {
@@ -88,10 +120,9 @@ fn c_str_with_size(size :usize) -> CString {
     return unsafe { CString::from_vec_unchecked(error_string) }
 }
 
-fn check_errors(shader_id: u32) {
-    // Check shader compilation error.
+fn check_compile_errors(shader_id: u32) {
     let mut check_error = 0;
-    unsafe {gl::GetShaderiv(shader_id, gl::COMPILE_STATUS, &mut check_error); }
+    unsafe { gl::GetShaderiv(shader_id, gl::COMPILE_STATUS, &mut check_error); }
 
     if check_error == 0 {
         println!("Compilation error");
@@ -100,7 +131,27 @@ fn check_errors(shader_id: u32) {
         let error_string = c_str_with_size(error_length as usize);
 
         unsafe {
-            gl::GetShaderInfoLog(shader_id, error_length, std::ptr::null_mut(), error_string.as_ptr() as *mut gl::types::GLchar);
+            gl::GetShaderInfoLog(shader_id, error_length, std::ptr::null_mut(),
+                error_string.as_ptr() as *mut gl::types::GLchar);
+        }
+
+        println!("{:?}", error_string);
+    }
+}
+
+fn check_link_errors(program_id: u32) {
+    let mut check_error = 0;
+    unsafe {gl::GetProgramiv(program_id, gl::LINK_STATUS, &mut check_error); }
+
+    if check_error == 0 {
+        println!("link errors");
+        let mut error_length: i32 = 0;
+        unsafe { gl::GetProgramiv(program_id, gl::INFO_LOG_LENGTH, &mut error_length); }
+        let error_string = c_str_with_size(error_length as usize);
+
+        unsafe {
+            gl::GetShaderInfoLog(program_id, error_length, std::ptr::null_mut(),
+                error_string.as_ptr() as *mut gl::types::GLchar);
         }
 
         println!("{:?}", error_string);
