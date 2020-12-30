@@ -68,8 +68,15 @@ fn main() {
     // and that speeds up a lot of the processing time.
     let mut vbo: gl::types::GLuint = 0;
 
+    // Creates a vao and let it store the "cache" for the
+    // vbo, aparently I'll need to have one of those for each vbo.
+    let mut vao: gl::types::GLuint = 0;
+
     unsafe {
+        gl::GenVertexArrays(1, &mut vao);
         gl::GenBuffers(1,  &mut vbo);
+
+        gl::BindVertexArray(vao);
         gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
         gl::BufferData(
             gl::ARRAY_BUFFER,
