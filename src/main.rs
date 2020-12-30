@@ -23,16 +23,31 @@ fn main() {
         .expect("Error creating the gl program");
 
     let vertices: Vec<f32> = vec![
-        -0.5, -0.5, 0.0,
+         0.5,  0.5, 0.0,
          0.5, -0.5, 0.0,
-          0.0, 0.5, 0.0];
+        -0.5, -0.5, 0.0,
+        -0.5,  0.5, 0.0
+    ];
+
+    let indexes: Vec<i32> = vec![
+        0,1,3,
+        1,2,3
+    ];
 
     // Creates a vbo and binds the data to an array_buffer.
     // VBOs are a way to upload data to the video card
     // and that speeds up a lot of the processing time.
     let mut vbo: gl::types::GLuint = 0;
+    let mut vao: gl::types::GLuint = 0;
+    let mut ebo: gl::types::GLuint = 0;
+
     unsafe {
+        gl::GenVertexArrays(1, &mut vao);
         gl::GenBuffers(1,  &mut vbo);
+        gl::GenBuffers(1, &mut ebo);
+
+        gl::BindVertexArray(vao);
+
         gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
         gl::BufferData(
             gl::ARRAY_BUFFER,
@@ -40,17 +55,15 @@ fn main() {
             vertices.as_ptr() as *const gl::types::GLvoid,
             gl::STATIC_DRAW
         );
-        gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-    }
 
-    // Creates a vao and let it store the "cache" for the
-    // vbo, aparently I'll need to have one of those for each vbo.
-    let mut vao: gl::types::GLuint = 0;
-    unsafe {
-        gl::GenVertexArrays(1, &mut vao);
-        gl::BindVertexArray(vao);
+        gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo);
+        gl::BufferData(
+            gl::ELEMENT_ARRAY_BUFFER,
+            (indexes.len() * std::mem::size_of::<i32>()) as gl::types::GLsizeiptr,
+            indexes.as_ptr() as *const gl::types::GLvoid,
+            gl::STATIC_DRAW
+        );
 
-        gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
         gl::EnableVertexAttribArray(0);
         gl::VertexAttribPointer(
             0,                                      // Index of the array.
@@ -60,7 +73,6 @@ fn main() {
             3 * std::mem::size_of::<f32>() as gl::types::GLint,  // size of each "block" of data
             std::ptr::null()                      // where the data begins, inside of the array
         );
-        gl::BindBuffer(gl::ARRAY_BUFFER, 0);
         gl::BindVertexArray(0);
     };
 
@@ -80,7 +92,8 @@ fn main() {
             gl::Clear(gl::COLOR_BUFFER_BIT);
             gl::UseProgram(gl_program.id());
             gl::BindVertexArray(vao);
-            gl::DrawArrays(gl::TRIANGLES, 0, 3);
+            gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
+            gl::BindVertexArray(0);
         }
 
         window.swap_buffers();
