@@ -134,6 +134,12 @@ impl WindowEventHandler for glfw::Window{
                 println!("Closing Window");
                 self.set_should_close(true);
             }
+            (Key::W, Action::Press) => {
+                unsafe { gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE); }
+            }
+            (Key::S, Action::Press) => {
+                unsafe { gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL); }
+            }
             _ => {}
         }
     }
