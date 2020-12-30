@@ -38,6 +38,8 @@ fn main() {
         gl::AttachShader(shader_program_id, fragment_shader.id);
         gl::LinkProgram(shader_program_id);
         check_link_errors(shader_program_id);
+        gl::DetachShader(shader_program_id, vertex_shader.id);
+        gl::DetachShader(shader_program_id, fragment_shader.id);
     }
 
     // Creates a vbo and binds the data to an array_buffer.
