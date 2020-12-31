@@ -62,6 +62,9 @@ fn main() {
         gl::ClearColor(0.8, 0.3, 0.3, 1.0);
     }
 
+    triangle_1.program().print_uniforms();
+    triangle_2.program().print_uniforms();
+
     while !window.should_close() {
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
