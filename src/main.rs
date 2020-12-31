@@ -1,6 +1,8 @@
 extern crate glfw;
 extern crate gl;
 
+use std::ffi::{CString};
+
 use glfw::{Action, Context, Key};
 
 mod shader;
@@ -59,6 +61,10 @@ fn main() {
         gl::ClearColor(0.8, 0.3, 0.3, 1.0);
     }
 
+    // TODO: Find a better way to handle the uniforms.
+    let uniform_color = CString::new("color")
+        .expect("Error generating C String");
+
     while !window.should_close() {
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
@@ -67,8 +73,16 @@ fn main() {
 
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT);
+
+            let time: f32 = glfw.get_time() as f32;
+            let color: f32 = (time.sin() / 2.0) + 0.5;
+
             for element in &geometries {
+                let vertex_color = gl::GetUniformLocation(element.program().id(), uniform_color.as_ptr());
                 gl::UseProgram(element.program().id());
+                if vertex_color != -1 {
+                    gl::Uniform4f(vertex_color, 0.0, color, 0.0, 1.0);
+                }
                 gl::BindVertexArray(element.vao());
                 gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
                 gl::BindVertexArray(0);
