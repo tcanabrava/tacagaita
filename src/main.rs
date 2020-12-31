@@ -22,8 +22,15 @@ fn main() {
     include_str!("shaders/triangle_vertex_shader.glsl"))
         .expect("Error returning the vertex shader");
 
-    let gl_program = GLProgram::from_shaders(&[fragment_shader, vertex_shader])
+    let color_blue_shader = Shader::from_fragment_src(
+        include_str!("shaders/color_blue.frag.glsl"))
+        .expect("Error loading the blue fragment shader");
+
+    let gl_program_1 = GLProgram::from_shaders(&[&fragment_shader, &vertex_shader])
         .expect("Error creating the gl program");
+
+    let gl_program_2 = GLProgram::from_shaders(&[&color_blue_shader, &vertex_shader])
+        .expect("Error creating the blue shader program");
 
     let triangle1: Vec<f32> = vec![
         -0.1,  -0.2, 0.0,
@@ -41,8 +48,10 @@ fn main() {
         0,1,2
     ];
 
-    let geometry_t1 = Geometry::from_data(&triangle1, &indexes);
-    let geometry_t2 = Geometry::from_data(&triangle2, &indexes);
+    let geometries: Vec<Geometry> = vec![
+        Geometry::from_data(&triangle1, &indexes, gl_program_1),
+        Geometry::from_data(&triangle2, &indexes, gl_program_2)
+    ];
 
     let(width, height) = window.get_framebuffer_size();
     unsafe {
@@ -58,8 +67,8 @@ fn main() {
 
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT);
-            gl::UseProgram(gl_program.id());
-            for element in &[&geometry_t1, &geometry_t2] {
+            for element in &geometries {
+                gl::UseProgram(element.program().id());
                 gl::BindVertexArray(element.vao());
                 gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
                 gl::BindVertexArray(0);

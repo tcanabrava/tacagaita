@@ -1,7 +1,12 @@
 
 extern crate gl;
+
+use crate::shader::*;
 pub struct Geometry {
+    // vao id.
     vao: gl::types::GLuint,
+    // shader program id.
+    program: GLProgram,
 }
 
 impl Geometry {
@@ -9,7 +14,11 @@ impl Geometry {
         return self.vao;
     }
 
-    pub fn from_data(data : &Vec<f32>, indexes: &Vec<i32>) -> Geometry {
+    pub fn program(&self) -> &GLProgram {
+        return &self.program;
+    }
+
+    pub fn from_data(data : &Vec<f32>, indexes: &Vec<i32>, program_id: GLProgram) -> Geometry {
         let mut vbo: gl::types::GLuint = 0;
         let mut vao: gl::types::GLuint = 0;
         let mut ebo: gl::types::GLuint = 0;
@@ -49,6 +58,6 @@ impl Geometry {
             gl::BindVertexArray(0);
         };
 
-        return Geometry{vao: vao};
+        return Geometry{vao: vao, program: program_id};
     }
 }

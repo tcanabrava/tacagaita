@@ -70,7 +70,7 @@ impl GLProgram {
         return self.id;
     }
 
-    pub fn from_shaders(shaders: &[Shader]) -> Result<GLProgram, bool> {
+    pub fn from_shaders(shaders: &[&Shader]) -> Result<GLProgram, bool> {
         let shader_program_id : u32 = unsafe { gl::CreateProgram() };
 
         for shader in shaders {
