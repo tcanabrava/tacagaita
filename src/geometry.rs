@@ -47,10 +47,10 @@ impl Geometry {
                 gl::STATIC_DRAW
             );
 
-            gl::EnableVertexAttribArray(0);
             let mut idx = 0;
             for offset in offsets {
                 println!("Adding attrib pointer {:?}, dblock: {:?}", idx, offset);
+                gl::EnableVertexAttribArray(idx);
                 gl::VertexAttribPointer(
                     idx,                                      // Index of the array.
                     3,                                      // number of points to consider inside of the array.
@@ -60,8 +60,8 @@ impl Geometry {
                     (offset * std::mem::size_of::<f32>()) as *const std::ffi::c_void  // where the data begins, inside of the array
                 );
                 idx += 1;
+                gl::BindVertexArray(idx);
             }
-            gl::BindVertexArray(0);
         };
 
         return Geometry{vao: vao, program: program_id};
