@@ -25,21 +25,24 @@ fn main() {
     let gl_program = GLProgram::from_shaders(&[fragment_shader, vertex_shader])
         .expect("Error creating the gl program");
 
-    let vertices: Vec<f32> = vec![
+    let triangle1: Vec<f32> = vec![
         -0.1,  -0.2, 0.0,
         -0.15, -0.1, 0.0,
         -0.2, -0.2, 0.0,
-         0.1,  -0.2, 0.0,
-         0.15, -0.1, 0.0,
-         0.2,  -0.2, 0.0
+    ];
+
+    let triangle2: Vec<f32> = vec![
+        0.1,  -0.2, 0.0,
+        0.15, -0.1, 0.0,
+        0.2,  -0.2, 0.0
     ];
 
     let indexes: Vec<i32> = vec![
-        0,1,2,
-        3,4,5
+        0,1,2
     ];
 
-    let geometry = Geometry::from_data(&vertices, &indexes);
+    let geometry_t1 = Geometry::from_data(&triangle1, &indexes);
+    let geometry_t2 = Geometry::from_data(&triangle2, &indexes);
 
     let(width, height) = window.get_framebuffer_size();
     unsafe {
@@ -56,9 +59,11 @@ fn main() {
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT);
             gl::UseProgram(gl_program.id());
-            gl::BindVertexArray(geometry.vao());
-            gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
-            gl::BindVertexArray(0);
+            for element in &[&geometry_t1, &geometry_t2] {
+                gl::BindVertexArray(element.vao());
+                gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
+                gl::BindVertexArray(0);
+            }
         }
 
         window.swap_buffers();
