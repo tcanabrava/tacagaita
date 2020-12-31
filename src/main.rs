@@ -35,10 +35,10 @@ fn main() {
         .expect("Error creating the blue shader program");
 
     let triangle1: Vec<f32> = vec![
-        // vertices      |// color
-        -0.1,  -0.2, 0.0,  1.0, 0.0, 0.0, // 0
-        -0.15, -0.1, 0.0,  0.0, 1.0, 0.0, // 1
-        -0.2,  -0.2, 0.0,  0.0, 0.0, 1.0  // 2
+        // color              |// vertice
+        1.0, 0.0, 0.0, -0.1,  -0.2, 0.0,  // 0
+        0.0, 1.0, 0.0, -0.15, -0.1, 0.0,  // 1
+        0.0, 0.0, 1.0, -0.2,  -0.2, 0.0,  // 2
     ];
 
     let triangle2: Vec<f32> = vec![
@@ -52,7 +52,7 @@ fn main() {
     ];
 
     let geometries: Vec<Geometry> = vec![
-        Geometry::from_data(&triangle1, &indexes_1, gl_program_1, 6, &[0, 3]),
+        Geometry::from_data(&triangle1, &indexes_1, gl_program_1, 6, &[3, 0]),
         Geometry::from_data(&triangle2, &indexes_1, gl_program_2, 3, &[0])
     ];
 
