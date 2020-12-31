@@ -83,8 +83,8 @@ fn main() {
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT);
 
-            for element in &geometries {
-                gl::UseProgram(element.program().id());
+            for element in &[&triangle_1, &triangle_2] {
+                element.program().activate();
                 gl::BindVertexArray(element.vao());
                 gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
                 gl::BindVertexArray(0);
