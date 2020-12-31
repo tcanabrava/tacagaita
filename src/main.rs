@@ -51,13 +51,9 @@ fn main() {
         0, 1, 2,
     ];
 
-    let indexes_2: Vec<i32> = vec![
-        0, 1, 2
-    ];
-
     let geometries: Vec<Geometry> = vec![
-        Geometry::from_data(&triangle1, &indexes_1, gl_program_1, &[&DataBlock{size: 6, offset:0}]),
-        Geometry::from_data(&triangle2, &indexes_2, gl_program_2, &[&DataBlock{size: 3, offset:0}])
+        Geometry::from_data(&triangle1, &indexes_1, gl_program_1, 6, &[0, 3]),
+        Geometry::from_data(&triangle2, &indexes_1, gl_program_2, 3, &[0])
     ];
 
     let(width, height) = window.get_framebuffer_size();
