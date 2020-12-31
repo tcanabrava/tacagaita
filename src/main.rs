@@ -4,8 +4,11 @@ extern crate gl;
 use glfw::{Action, Context, Key};
 
 mod shader;
-use shader::*;
 mod helpers;
+mod geometry;
+
+use shader::*;
+use geometry::*;
 
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -36,47 +39,7 @@ fn main() {
         3,4,5
     ];
 
-    // Creates a vbo and binds the data to an array_buffer.
-    // VBOs are a way to upload data to the video card
-    // and that speeds up a lot of the processing time.
-    let mut vbo: gl::types::GLuint = 0;
-    let mut vao: gl::types::GLuint = 0;
-    let mut ebo: gl::types::GLuint = 0;
-
-    unsafe {
-        gl::GenVertexArrays(1, &mut vao);
-        gl::GenBuffers(1,  &mut vbo);
-        gl::GenBuffers(1, &mut ebo);
-
-        gl::BindVertexArray(vao);
-
-        gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
-        gl::BufferData(
-            gl::ARRAY_BUFFER,
-            (vertices.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-            vertices.as_ptr() as *const gl::types::GLvoid,
-            gl::STATIC_DRAW
-        );
-
-        gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo);
-        gl::BufferData(
-            gl::ELEMENT_ARRAY_BUFFER,
-            (indexes.len() * std::mem::size_of::<i32>()) as gl::types::GLsizeiptr,
-            indexes.as_ptr() as *const gl::types::GLvoid,
-            gl::STATIC_DRAW
-        );
-
-        gl::EnableVertexAttribArray(0);
-        gl::VertexAttribPointer(
-            0,                                      // Index of the array.
-            3,                                      // number of points to consider inside of the array.
-            gl::FLOAT,                              // type of the data
-            gl::FALSE,                              // Dados tem que ser normalizados? (entre -1.0f e 1.0f)
-            3 * std::mem::size_of::<f32>() as gl::types::GLint,  // size of each "block" of data
-            std::ptr::null()                      // where the data begins, inside of the array
-        );
-        gl::BindVertexArray(0);
-    };
+    let geometry = Geometry::from_data(&vertices, &indexes);
 
     let(width, height) = window.get_framebuffer_size();
     unsafe {
@@ -93,7 +56,7 @@ fn main() {
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT);
             gl::UseProgram(gl_program.id());
-            gl::BindVertexArray(vao);
+            gl::BindVertexArray(geometry.vao());
             gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
             gl::BindVertexArray(0);
         }
