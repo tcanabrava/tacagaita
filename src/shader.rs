@@ -70,8 +70,69 @@ impl GLProgram {
         return self.id;
     }
 
+    pub fn activate(&self) {
+        unsafe { gl::UseProgram(self.id); }
+    }
+
+    pub fn print_uniforms(&self) {
+        let mut count : gl::types::GLint = 0;
+        unsafe { gl::GetProgramiv(self.id, gl::ACTIVE_UNIFORMS, &mut count); }
+
+        println!("Active Uniforms for program with id:{0}: {1:?}", self.id, count);
+
+        let mut length : gl::types::GLsizei = 0;
+        let mut size: gl::types::GLint = 0;
+        let mut uniform_type: gl::types::GLenum = 0;
+        let buf_size = 16; // largest name allowed in glsl
+        let name = c_str_with_size(16);
+
+        for i in 0..count {
+            unsafe {
+                gl::GetActiveUniform(
+                    self.id, i as u32,
+                    buf_size,
+                    &mut length,
+                    &mut size,
+                    &mut uniform_type,
+                    name.as_ptr() as *mut gl::types::GLchar
+                );
+            }
+            println!("Uniform {0} Type: {1} Name: {2:?}\n", i, uniform_type, name);
+        }
+        println!("Finished printing the uniforms");
+    }
+
+    pub fn set_bool(&self, var: &str, value: bool) {
+        let var_location = self.get_location(var).expect("erhn");
+        unsafe { gl::Uniform1i(var_location, value as gl::types::GLint); }
+    }
+
+    pub fn set_float(&self, var: &str, value: f32) {
+        let var_location = self.get_location(var).expect("erhn");
+        unsafe { gl::Uniform1f(var_location, value as gl::types::GLfloat); }
+    }
+
+    pub fn set_int(&self, var: &str, value: i32) {
+        let var_location = self.get_location(var).expect("erhn");
+        unsafe { gl::Uniform1i(var_location, value as gl::types::GLint); }
+    }
+
+    // I seriously need to learn how to handle errors in rust.
+    pub fn get_location(&self, var: &str) -> Result<gl::types::GLint, String> {
+        let cstr_name = CString::new(var)
+        .expect("Could not create variable");
+
+        let var_location = unsafe { gl::GetUniformLocation(self.id, cstr_name.as_ptr()) };
+        if var_location == -1 {
+            println!("Error setting variable {:?}, not found in program.", var);
+            return Err(String::new());
+        }
+        return Ok(var_location);
+    }
+
     pub fn from_shaders(shaders: &[&Shader]) -> Result<GLProgram, bool> {
         let shader_program_id : u32 = unsafe { gl::CreateProgram() };
+        println!("Creating shader program with id: {0}", shader_program_id);
 
         for shader in shaders {
             unsafe { gl::AttachShader(shader_program_id, shader.id()); }
