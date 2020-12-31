@@ -35,9 +35,10 @@ fn main() {
         .expect("Error creating the blue shader program");
 
     let triangle1: Vec<f32> = vec![
-        -0.1,  -0.2, 0.0,
-        -0.15, -0.1, 0.0,
-        -0.2, -0.2, 0.0,
+        // vertices      |// color
+        -0.1,  -0.2, 0.0,  1.0, 0.0, 0.0, // 0
+        -0.15, -0.1, 0.0,  0.0, 1.0, 0.0, // 1
+        -0.2,  -0.2, 0.0,  0.0, 0.0, 1.0  // 2
     ];
 
     let triangle2: Vec<f32> = vec![
@@ -46,13 +47,17 @@ fn main() {
         0.2,  -0.2, 0.0
     ];
 
-    let indexes: Vec<i32> = vec![
-        0,1,2
+    let indexes_1: Vec<i32> = vec![
+        0, 1, 2,
+    ];
+
+    let indexes_2: Vec<i32> = vec![
+        0, 1, 2
     ];
 
     let geometries: Vec<Geometry> = vec![
-        Geometry::from_data(&triangle1, &indexes, gl_program_1),
-        Geometry::from_data(&triangle2, &indexes, gl_program_2)
+        Geometry::from_data(&triangle1, &indexes_1, gl_program_1, &[&DataBlock{size: 6, offset:0}]),
+        Geometry::from_data(&triangle2, &indexes_2, gl_program_2, &[&DataBlock{size: 3, offset:0}])
     ];
 
     let(width, height) = window.get_framebuffer_size();
@@ -60,10 +65,6 @@ fn main() {
         gl::Viewport(0, 0, width, height);
         gl::ClearColor(0.8, 0.3, 0.3, 1.0);
     }
-
-    // TODO: Find a better way to handle the uniforms.
-    let uniform_color = CString::new("color")
-        .expect("Error generating C String");
 
     while !window.should_close() {
         glfw.poll_events();
@@ -74,15 +75,8 @@ fn main() {
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT);
 
-            let time: f32 = glfw.get_time() as f32;
-            let color: f32 = (time.sin() / 2.0) + 0.5;
-
             for element in &geometries {
-                let vertex_color = gl::GetUniformLocation(element.program().id(), uniform_color.as_ptr());
                 gl::UseProgram(element.program().id());
-                if vertex_color != -1 {
-                    gl::Uniform4f(vertex_color, 0.0, color, 0.0, 1.0);
-                }
                 gl::BindVertexArray(element.vao());
                 gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
                 gl::BindVertexArray(0);

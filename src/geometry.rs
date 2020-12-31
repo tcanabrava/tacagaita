@@ -2,6 +2,12 @@
 extern crate gl;
 
 use crate::shader::*;
+
+pub struct DataBlock {
+    pub size: i32,
+    pub offset: u32
+}
+
 pub struct Geometry {
     // vao id.
     vao: gl::types::GLuint,
@@ -18,7 +24,7 @@ impl Geometry {
         return &self.program;
     }
 
-    pub fn from_data(data : &Vec<f32>, indexes: &Vec<i32>, program_id: GLProgram) -> Geometry {
+    pub fn from_data(data : &Vec<f32>, indexes: &Vec<i32>, program_id: GLProgram, data_block: &[&DataBlock]) -> Geometry {
         let mut vbo: gl::types::GLuint = 0;
         let mut vao: gl::types::GLuint = 0;
         let mut ebo: gl::types::GLuint = 0;
@@ -47,14 +53,19 @@ impl Geometry {
             );
 
             gl::EnableVertexAttribArray(0);
-            gl::VertexAttribPointer(
-                0,                                      // Index of the array.
-                3,                                      // number of points to consider inside of the array.
-                gl::FLOAT,                              // type of the data
-                gl::FALSE,                              // Dados tem que ser normalizados? (entre -1.0f e 1.0f)
-                3 * std::mem::size_of::<f32>() as gl::types::GLint,  // size of each "block" of data
-                std::ptr::null()                      // where the data begins, inside of the array
-            );
+            let mut idx = 0;
+            for dblock in data_block {
+                println!("Adding attrib pointer {:?}", idx);
+                gl::VertexAttribPointer(
+                    idx,                                      // Index of the array.
+                    3,                                      // number of points to consider inside of the array.
+                    gl::FLOAT,                              // type of the data
+                    gl::FALSE,                              // Dados tem que ser normalizados? (entre -1.0f e 1.0f)
+                    dblock.size * std::mem::size_of::<f32>() as gl::types::GLint,  // size of each "block" of data
+                    dblock.offset as *const std::ffi::c_void  // where the data begins, inside of the array
+                );
+                idx += 1;
+            }
             gl::BindVertexArray(0);
         };
 
