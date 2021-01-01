@@ -77,10 +77,10 @@ fn main() {
     }
 
     let triangle1: Vec<f32> = vec![
-        0.5,  0.5, 0.0,  // top right
-        0.5, -0.5, 0.0,  // bottom right
-        -0.5, -0.5, 0.0,  // bottom left
-        -0.5,  0.5, 0.0   // top left
+        0.5,  0.5, 0.0,  1.0, 0.0, 0.0, // top right
+        0.5, -0.5, 0.0,  0.0, 1.0, 0.0, // bottom right
+        -0.5, -0.5, 0.0, 1.0, 0.0, 0.0, // bottom left
+        -0.5,  0.5, 0.0,  0.0, 0.0, 1.0, // top left
     ];
 
     let triangle2: Vec<f32> = vec![
@@ -102,8 +102,8 @@ fn main() {
         &triangle1,
         &indexes_1,
         gl_program_1,
-        3,
-        &[0]);
+        6,
+        &[0, 3]);
 
     let triangle_2 = Geometry::from_data(
         &triangle2,
