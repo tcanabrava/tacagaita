@@ -19,6 +19,10 @@ impl Geometry {
         return &self.program;
     }
 
+    pub fn program_mut(&mut self) -> &mut GLProgram {
+        return &mut self.program;
+    }
+
     pub fn from_data(data : &Vec<f32>, indexes: &Vec<i32>, program_id: GLProgram, data_size: i32, offsets: &[usize]) -> Geometry {
         let mut vbo: gl::types::GLuint = 0;
         let mut vao: gl::types::GLuint = 0;

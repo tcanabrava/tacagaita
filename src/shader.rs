@@ -1,5 +1,7 @@
 extern crate glfw;
 extern crate gl;
+
+use std::collections::HashMap;
 use std::ffi::{CString};
 
 pub struct Shader {
@@ -60,8 +62,13 @@ impl Drop for Shader {
         unsafe { gl::DeleteShader(self.id); }
     }
 }
+
+#[derive(Default)]
 pub struct GLProgram {
     id: gl::types::GLuint,
+    floats: HashMap<CString, f32>,
+    ints: HashMap<CString, i32>,
+    bools: HashMap<CString, bool>,
 }
 
 impl GLProgram {
@@ -71,7 +78,23 @@ impl GLProgram {
     }
 
     pub fn activate(&self) {
-        unsafe { gl::UseProgram(self.id); }
+        unsafe {
+            gl::UseProgram(self.id);
+            for (key, &value) in self.floats.iter() {
+                let location = self.get_location(&key).expect("Panic!");
+                gl::Uniform1f(location, value as gl::types::GLfloat);
+            }
+
+            for (key, &value) in self.ints.iter() {
+                let location = self.get_location(&key).expect("Panic!");
+                gl::Uniform1i(location, value as gl::types::GLint);
+            }
+
+            for (key, &value) in self.bools.iter() {
+                let location = self.get_location(&key).expect("Panic!");
+                gl::Uniform1i(location, value as gl::types::GLint);
+            }
+        }
     }
 
     pub fn print_uniforms(&self) {
@@ -102,27 +125,24 @@ impl GLProgram {
         println!("Finished printing the uniforms");
     }
 
-    pub fn set_bool(&self, var: &str, value: bool) {
-        let var_location = self.get_location(var).expect("erhn");
-        unsafe { gl::Uniform1i(var_location, value as gl::types::GLint); }
+    pub fn set_bool(&mut self, var: &str, value: bool) {
+        let c_str = CString::new(var).expect("Error converting string");
+        self.bools.insert(c_str, value);
     }
 
-    pub fn set_float(&self, var: &str, value: f32) {
-        let var_location = self.get_location(var).expect("erhn");
-        unsafe { gl::Uniform1f(var_location, value as gl::types::GLfloat); }
+    pub fn set_float(&mut self, var: &str, value: f32) {
+        let c_str = CString::new(var).expect("Error converting string");
+        self.floats.insert(c_str, value);
     }
 
-    pub fn set_int(&self, var: &str, value: i32) {
-        let var_location = self.get_location(var).expect("erhn");
-        unsafe { gl::Uniform1i(var_location, value as gl::types::GLint); }
+    pub fn set_int(&mut self, var: &str, value: i32) {
+        let c_str = CString::new(var).expect("Error converting string");
+        self.ints.insert(c_str, value);
     }
 
     // I seriously need to learn how to handle errors in rust.
-    pub fn get_location(&self, var: &str) -> Result<gl::types::GLint, String> {
-        let cstr_name = CString::new(var)
-        .expect("Could not create variable");
-
-        let var_location = unsafe { gl::GetUniformLocation(self.id, cstr_name.as_ptr()) };
+    pub fn get_location(&self, var: &CString) -> Result<gl::types::GLint, String> {
+        let var_location = unsafe { gl::GetUniformLocation(self.id, var.as_ptr()) };
         if var_location == -1 {
             println!("Error setting variable {:?}, not found in program.", var);
             return Err(String::new());
@@ -151,7 +171,12 @@ impl GLProgram {
             return Err(false);
         }
 
-        return Ok(GLProgram{id: shader_program_id});
+        return Ok(GLProgram{
+            id: shader_program_id,
+            floats: HashMap::new(),
+            ints: HashMap::new(),
+            bools: HashMap::new()
+         });
     }
 
 

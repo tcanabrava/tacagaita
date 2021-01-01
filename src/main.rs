@@ -55,7 +55,7 @@ fn main() {
         0, 1, 2,
     ];
 
-    let triangle_1 = Geometry::from_data(
+    let mut triangle_1 = Geometry::from_data(
         &triangle1,
         &indexes_1,
         gl_program_1,
@@ -69,14 +69,13 @@ fn main() {
         3,
         &[0]);
 
+    triangle_1.program_mut().set_float("h_offset", 0.5);
+
     let(width, height) = window.get_framebuffer_size();
     unsafe {
         gl::Viewport(0, 0, width, height);
         gl::ClearColor(0.8, 0.3, 0.3, 1.0);
     }
-
-    triangle_1.program().print_uniforms();
-    triangle_2.program().print_uniforms();
 
     while !window.should_close() {
         glfw.poll_events();
@@ -87,7 +86,7 @@ fn main() {
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT);
 
-            for element in &[&triangle_1, &triangle_2] {
+            for element in &[&triangle_1] {
                 element.program().activate();
                 gl::BindVertexArray(element.vao());
                 gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
