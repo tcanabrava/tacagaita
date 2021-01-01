@@ -77,10 +77,10 @@ fn main() {
     }
 
     let triangle1: Vec<f32> = vec![
-        // color       |// vertice
-        1.0, 0.0, 0.0, -0.1,  -0.2, 0.0,  // 0
-        0.0, 1.0, 0.0, -0.15, -0.1, 0.0,  // 1
-        0.0, 0.0, 1.0, -0.2,  -0.2, 0.0,  // 2
+        0.5,  0.5, 0.0,  // top right
+        0.5, -0.5, 0.0,  // bottom right
+        -0.5, -0.5, 0.0,  // bottom left
+        -0.5,  0.5, 0.0   // top left
     ];
 
     let triangle2: Vec<f32> = vec![
@@ -90,24 +90,29 @@ fn main() {
     ];
 
     let indexes_1: Vec<i32> = vec![
+        0, 1, 3,
+        1, 2, 3
+    ];
+
+    let indexes_2: Vec<i32> = vec![
         0, 1, 2,
     ];
 
-    let mut triangle_1 = Geometry::from_data(
+    let triangle_1 = Geometry::from_data(
         &triangle1,
         &indexes_1,
         gl_program_1,
-        6,
-        &[3, 0]);
+        3,
+        &[0]);
 
     let triangle_2 = Geometry::from_data(
         &triangle2,
-        &indexes_1,
+        &indexes_2,
         gl_program_2,
         3,
         &[0]);
 
-    triangle_1.program_mut().set_float("h_offset", 0.5);
+//    triangle_1.program_mut().set_float("h_offset", 0.5);
 
     let(width, height) = window.get_framebuffer_size();
     unsafe {

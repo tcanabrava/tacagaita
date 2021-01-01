@@ -9,6 +9,6 @@ uniform float h_offset;
 
 void main()
 {
-    gl_Position = vec4(Position.x + h_offset, -1*Position.y, Position.z, 1.0);
+    gl_Position = vec4(Position.x + h_offset, Position.y, Position.z, 1.0);
     ourColor = Color;
 }
