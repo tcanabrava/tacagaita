@@ -1,9 +1,11 @@
 extern crate glfw;
 extern crate gl;
-
-use std::ffi::{CString};
+extern crate image;
 
 use glfw::{Action, Context, Key};
+use image::io::Reader as ImageReader;
+
+use image::{GenericImageView};
 
 mod shader;
 mod helpers;
@@ -37,6 +39,42 @@ fn main() {
 
     let gl_program_2 = GLProgram::from_shaders(&[&triangle2_vert, &color_blue_frag])
         .expect("Error creating the blue shader program");
+
+    let image_data = ImageReader::open("/data/Projects/tocagaita/src/textures/wall.jpg")
+        .expect("Could not load texture.")
+        .decode()
+        .expect("Could not decode texture");
+
+    //-------- Texture -----------
+    // Jesus, that's complex.
+    let mut texture_id = 0;
+    unsafe {
+        gl::GenTextures(1, &mut texture_id);
+        gl::BindTexture(gl::TEXTURE_2D, texture_id);
+
+        // How the texture should behave when it ends
+        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as gl::types::GLint);
+        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as gl::types::GLint);
+
+        // Visualization Filters.
+        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR as gl::types::GLint);
+        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as gl::types::GLint);
+
+        // Load the texture in memory
+        gl::TexImage2D(
+            gl::TEXTURE_2D,     // Type of Texture
+            0,                  // Minimap Level
+            gl::RGB as gl::types::GLint,            // Type of image to be stored
+            image_data.width() as gl::types::GLint,
+            image_data.height() as gl::types::GLint,
+            0,                  // Always zero. Legacy.
+            gl::RGB,            // Type of image to be read
+            gl::UNSIGNED_BYTE,  // Type of values we are passing.
+            image_data.as_rgb8().expect("Error converting").as_ptr() as *const std::ffi::c_void
+        );
+
+        gl::GenerateMipmap(gl::TEXTURE_2D);
+    }
 
     let triangle1: Vec<f32> = vec![
         // color       |// vertice
