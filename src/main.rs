@@ -90,7 +90,7 @@ fn main() {
                 element.program().activate();
                 // TODO: Move this to element.draw();
                 gl::BindVertexArray(element.vao());
-                gl::DrawElements(gl::TRIANGLES, 3, gl::UNSIGNED_INT, std::ptr::null());
+                gl::DrawElements(gl::TRIANGLES, element.idx_size(), gl::UNSIGNED_INT, std::ptr::null());
                 gl::BindVertexArray(0);
             }
         }

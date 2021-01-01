@@ -8,6 +8,8 @@ pub struct Geometry {
     vao: gl::types::GLuint,
     // shader program id.
     program: GLProgram,
+
+    idx_size: gl::types::GLint,
 }
 
 impl Geometry {
@@ -21,6 +23,10 @@ impl Geometry {
 
     pub fn program_mut(&mut self) -> &mut GLProgram {
         return &mut self.program;
+    }
+
+    pub fn idx_size(&self) -> gl::types::GLint {
+        return self.idx_size;
     }
 
     pub fn from_data(data : &Vec<f32>, indexes: &Vec<i32>, program_id: GLProgram, data_size: i32, offsets: &[usize]) -> Geometry {
@@ -68,6 +74,10 @@ impl Geometry {
             }
         };
 
-        return Geometry{vao: vao, program: program_id};
+        return Geometry{
+            vao: vao,
+            program: program_id,
+            idx_size: indexes.len() as gl::types::GLint
+        };
     }
 }
