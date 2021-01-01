@@ -16,26 +16,30 @@ fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
     let (mut window, events) = create_window(&mut glfw);
 
-    let fragment_shader = Shader::from_fragment_src(
-    include_str!("shaders/triangle_fragment_shader.glsl"))
+    let triangle_frag = Shader::from_fragment_src(
+    include_str!("shaders/main_triangle.frag"))
         .expect("Error returning the fragment shader");
 
-    let vertex_shader = Shader::from_vertex_src(
-    include_str!("shaders/triangle_vertex_shader.glsl"))
+    let triangle_vert = Shader::from_vertex_src(
+    include_str!("shaders/main_triangle.vert"))
         .expect("Error returning the vertex shader");
 
-    let color_blue_shader = Shader::from_fragment_src(
-        include_str!("shaders/color_blue.frag.glsl"))
+    let triangle2_vert = Shader::from_vertex_src(
+        include_str!("shaders/main_triangle.vert"))
+            .expect("Error returning the vertex shader");
+
+    let color_blue_frag = Shader::from_fragment_src(
+        include_str!("shaders/set_color_blue.frag"))
         .expect("Error loading the blue fragment shader");
 
-    let gl_program_1 = GLProgram::from_shaders(&[&fragment_shader, &vertex_shader])
+    let gl_program_1 = GLProgram::from_shaders(&[&triangle_vert, &triangle_frag])
         .expect("Error creating the gl program");
 
-    let gl_program_2 = GLProgram::from_shaders(&[&color_blue_shader, &vertex_shader])
+    let gl_program_2 = GLProgram::from_shaders(&[&triangle2_vert, &color_blue_frag])
         .expect("Error creating the blue shader program");
 
     let triangle1: Vec<f32> = vec![
-        // color              |// vertice
+        // color       |// vertice
         1.0, 0.0, 0.0, -0.1,  -0.2, 0.0,  // 0
         0.0, 1.0, 0.0, -0.15, -0.1, 0.0,  // 1
         0.0, 0.0, 1.0, -0.2,  -0.2, 0.0,  // 2
