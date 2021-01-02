@@ -49,21 +49,22 @@ fn main() {
 
     let triangle1: Vec<f32> = vec![
         // vertices     |// Colors      // Texture
-        0.5,  0.5, 0.0,  1.0, 0.0, 0.0,  1.0, 1.0, // top right
-        0.5, -0.5, 0.0,  0.0, 1.0, 0.0,  1.0, 0.0, // bottom right
-        -0.5, -0.5, 0.0, 1.0, 0.0, 0.0,  0.0, 0.0, // bottom left
-        -0.5,  0.5, 0.0,  0.0, 0.0, 1.0, 0.0, 1.0, // top left
-    ];
-
-    let triangle2: Vec<f32> = vec![
-        0.1,  -0.2, 0.0,
-        0.15, -0.1, 0.0,
-        0.2,  -0.2, 0.0
+        0.5,  0.5, 0.0,  1.0, 0.0, 0.0,  1.0, 1.0, // top right     // 0
+        0.5, -0.5, 0.0,  0.0, 1.0, 0.0,  1.0, 0.0, // bottom right  // 1
+        -0.5, -0.5, 0.0, 1.0, 0.0, 0.0,  0.0, 0.0, // bottom left   // 2
+        -0.5,  0.5, 0.0,  0.0, 0.0, 1.0, 0.0, 1.0, // top left      // 3
     ];
 
     let indexes_1: Vec<i32> = vec![
         0, 1, 3,
         1, 2, 3
+    ];
+
+
+    let triangle2: Vec<f32> = vec![
+        0.1,  -0.2, 0.0,
+        0.15, -0.1, 0.0,
+        0.2,  -0.2, 0.0
     ];
 
     let indexes_2: Vec<i32> = vec![
@@ -74,7 +75,7 @@ fn main() {
         &triangle1,
         &indexes_1,
         gl_program_1,
-        None,
+        Some(image_data),
         8,
         &[(3,0), (3,3), (2,6)]);
 
@@ -91,7 +92,7 @@ fn main() {
     let(width, height) = window.get_framebuffer_size();
     unsafe {
         gl::Viewport(0, 0, width, height);
-        gl::ClearColor(0.8, 0.3, 0.3, 1.0);
+        gl::ClearColor(0.1, 0.3, 0.3, 1.0);
     }
 
     while !window.should_close() {

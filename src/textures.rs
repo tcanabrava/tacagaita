@@ -57,6 +57,7 @@ impl Texture {
             );
 
             gl::GenerateMipmap(gl::TEXTURE_2D);
+            gl::BindTexture(gl::TEXTURE_2D, 0);
         }
         return Ok(Texture{id: texture_id});
     }
