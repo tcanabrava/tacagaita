@@ -48,10 +48,11 @@ fn main() {
     };
 
     let triangle1: Vec<f32> = vec![
-        0.5,  0.5, 0.0,  1.0, 0.0, 0.0, // top right
-        0.5, -0.5, 0.0,  0.0, 1.0, 0.0, // bottom right
-        -0.5, -0.5, 0.0, 1.0, 0.0, 0.0, // bottom left
-        -0.5,  0.5, 0.0,  0.0, 0.0, 1.0, // top left
+        // vertices     |// Colors      // Texture
+        0.5,  0.5, 0.0,  1.0, 0.0, 0.0,  1.0, 1.0, // top right
+        0.5, -0.5, 0.0,  0.0, 1.0, 0.0,  1.0, 0.0, // bottom right
+        -0.5, -0.5, 0.0, 1.0, 0.0, 0.0,  0.0, 0.0, // bottom left
+        -0.5,  0.5, 0.0,  0.0, 0.0, 1.0, 0.0, 1.0, // top left
     ];
 
     let triangle2: Vec<f32> = vec![
@@ -73,13 +74,15 @@ fn main() {
         &triangle1,
         &indexes_1,
         gl_program_1,
-        6,
-        &[0, 3]);
+        None,
+        8,
+        &[0, 3, 6]);
 
     let triangle_2 = Geometry::from_data(
         &triangle2,
         &indexes_2,
         gl_program_2,
+        None,
         3,
         &[0]);
 
@@ -97,16 +100,10 @@ fn main() {
             handle_window_event(&mut window, event);
         }
 
-        unsafe {
-            gl::Clear(gl::COLOR_BUFFER_BIT);
+        unsafe { gl::Clear(gl::COLOR_BUFFER_BIT); }
 
-            for element in &[&triangle_1, &triangle_2] {
-                element.program().activate();
-                // TODO: Move this to element.draw();
-                gl::BindVertexArray(element.vao());
-                gl::DrawElements(gl::TRIANGLES, element.idx_size(), gl::UNSIGNED_INT, std::ptr::null());
-                gl::BindVertexArray(0);
-            }
+        for element in &[&triangle_1, &triangle_2] {
+            element.draw();
         }
 
         window.swap_buffers();

@@ -2,13 +2,14 @@
 extern crate gl;
 
 use crate::shader::*;
+use crate::textures::*;
 
 pub struct Geometry {
     // vao id.
     vao: gl::types::GLuint,
     // shader program id.
     program: GLProgram,
-
+    texture: Option<Texture>,
     idx_size: gl::types::GLint,
 }
 
@@ -29,7 +30,24 @@ impl Geometry {
         return self.idx_size;
     }
 
-    pub fn from_data(data : &Vec<f32>, indexes: &Vec<i32>, program_id: GLProgram, data_size: i32, offsets: &[usize]) -> Geometry {
+    pub fn draw(&self) {
+        self.program().activate();
+        // TODO: Move this to element.draw();
+        unsafe {
+            gl::BindVertexArray(self.vao());
+            gl::DrawElements(gl::TRIANGLES, self.idx_size(), gl::UNSIGNED_INT, std::ptr::null());
+            gl::BindVertexArray(0);
+        }
+    }
+
+    pub fn from_data(
+        data : &Vec<f32>,
+        indexes: &Vec<i32>,
+        program_id: GLProgram,
+        texture: Option<Texture>,
+        data_size: i32,
+        offsets: &[usize]) -> Geometry {
+
         let mut vbo: gl::types::GLuint = 0;
         let mut vao: gl::types::GLuint = 0;
         let mut ebo: gl::types::GLuint = 0;
@@ -77,6 +95,7 @@ impl Geometry {
         return Geometry{
             vao: vao,
             program: program_id,
+            texture: texture,
             idx_size: indexes.len() as gl::types::GLint
         };
     }

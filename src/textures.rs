@@ -60,4 +60,8 @@ impl Texture {
         }
         return Ok(Texture{id: texture_id});
     }
+
+    pub fn id(&self) -> gl::types::GLuint {
+        return self.id;
+    }
 }
