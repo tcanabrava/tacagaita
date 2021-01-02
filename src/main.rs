@@ -76,7 +76,7 @@ fn main() {
         gl_program_1,
         None,
         8,
-        &[0, 3, 6]);
+        &[(3,0), (3,3), (2,6)]);
 
     let triangle_2 = Geometry::from_data(
         &triangle2,
@@ -84,7 +84,7 @@ fn main() {
         gl_program_2,
         None,
         3,
-        &[0]);
+        &[(3,0)]);
 
 //    triangle_1.program_mut().set_float("h_offset", 0.5);
 

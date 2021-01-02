@@ -34,6 +34,10 @@ impl Geometry {
         self.program().activate();
         // TODO: Move this to element.draw();
         unsafe {
+            if let Some(t) = &self.texture {
+                gl::BindTexture(gl::TEXTURE_2D, t.id())
+            }
+
             gl::BindVertexArray(self.vao());
             gl::DrawElements(gl::TRIANGLES, self.idx_size(), gl::UNSIGNED_INT, std::ptr::null());
             gl::BindVertexArray(0);
@@ -46,7 +50,7 @@ impl Geometry {
         program_id: GLProgram,
         texture: Option<Texture>,
         data_size: i32,
-        offsets: &[usize]) -> Geometry {
+        offsets: &[(i32, usize)]) -> Geometry {
 
         let mut vbo: gl::types::GLuint = 0;
         let mut vao: gl::types::GLuint = 0;
@@ -76,12 +80,12 @@ impl Geometry {
             );
 
             let mut idx = 0;
-            for offset in offsets {
+            for (size,offset) in offsets {
                 println!("Adding attrib pointer {:?}, dblock: {:?}", idx, offset);
                 gl::EnableVertexAttribArray(idx);
                 gl::VertexAttribPointer(
                     idx,                                      // Index of the array.
-                    3,                                      // number of points to consider inside of the array.
+                    *size,                                      // number of points to consider inside of the array.
                     gl::FLOAT,                              // type of the data
                     gl::FALSE,                              // Dados tem que ser normalizados? (entre -1.0f e 1.0f)
                     data_size * std::mem::size_of::<f32>() as gl::types::GLint,  // size of each "block" of data
