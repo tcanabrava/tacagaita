@@ -40,7 +40,7 @@ fn main() {
     let gl_program_2 = GLProgram::from_shaders(&[&triangle2_vert, &color_blue_frag])
         .expect("Error creating the blue shader program");
 
-    let image_data = Texture::new("/data/Projects/tocagaita/src/textures/wall.jpg");
+    let image_data = Texture::new(&["/data/Projects/tocagaita/src/textures/wall.jpg"]);
     let image_data = match image_data {
         Ok(data) => data,
         Err(TextureError::Load(err)) => { println!("Error Loading Texture: {}", err); return; },

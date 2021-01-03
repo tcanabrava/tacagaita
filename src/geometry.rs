@@ -32,10 +32,12 @@ impl Geometry {
 
     pub fn draw(&self) {
         self.program().activate();
-        // TODO: Move this to element.draw();
+
         unsafe {
             if let Some(t) = &self.texture {
-                gl::BindTexture(gl::TEXTURE_2D, t.id())
+                for texture_id in t.ids() {
+                    gl::BindTexture(gl::TEXTURE_2D, *texture_id)
+                }
             }
 
             gl::BindVertexArray(self.vao());
@@ -87,7 +89,7 @@ impl Geometry {
                     idx,                                      // Index of the array.
                     *size,                                      // number of points to consider inside of the array.
                     gl::FLOAT,                              // type of the data
-                    gl::FALSE,                              // Dados tem que ser normalizados? (entre -1.0f e 1.0f)
+                    gl::FALSE,                              // Dados tem que ser normalizados (entre -1.0f e 1.0f)
                     data_size * std::mem::size_of::<f32>() as gl::types::GLint,  // size of each "block" of data
                     (offset * std::mem::size_of::<f32>()) as *const std::ffi::c_void  // where the data begins, inside of the array
                 );
