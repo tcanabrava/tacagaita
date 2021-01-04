@@ -1,6 +1,8 @@
 
 extern crate gl;
 
+use itertools::izip;
+
 use crate::shader::*;
 use crate::textures::*;
 
@@ -35,9 +37,9 @@ impl Geometry {
 
         unsafe {
             if let Some(textures) = &self.textures {
-                let mut curr_pos: u32 = 0;
+                let mut curr_pos: i32 = 0;
                 for texture in textures.iter() {
-                    gl::ActiveTexture(gl::TEXTURE0 + curr_pos);
+                    gl::ActiveTexture(gl::TEXTURE0 + (curr_pos as u32));
                     gl::BindTexture(gl::TEXTURE_2D, texture.id());
                     curr_pos += 1;
                 }
@@ -52,14 +54,20 @@ impl Geometry {
     pub fn from_data(
         data : &Vec<f32>,
         indexes: &Vec<i32>,
-        program_id: GLProgram,
-        texture: Option<Vec<Texture>>,
+        mut program_id: GLProgram,
+        textures: Option<Vec<Texture>>,
         data_size: i32,
         offsets: &[(i32, usize)]) -> Geometry {
 
         let mut vbo: gl::types::GLuint = 0;
         let mut vao: gl::types::GLuint = 0;
         let mut ebo: gl::types::GLuint = 0;
+
+        if let Some(texture_vec) = &textures {
+            for (idx, tex) in izip!(0..texture_vec.len(), texture_vec) {
+                program_id.set_int(tex.uniform(), idx as i32);
+            }
+        }
 
         unsafe {
             gl::GenVertexArrays(1, &mut vao);
@@ -104,7 +112,7 @@ impl Geometry {
         return Geometry{
             vao: vao,
             program: program_id,
-            textures: texture,
+            textures: textures,
             idx_size: indexes.len() as gl::types::GLint
         };
     }

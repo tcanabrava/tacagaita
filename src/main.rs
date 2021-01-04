@@ -42,13 +42,13 @@ fn main() {
 
     let image_data = Texture::from_files(&[
         &TextureDescriptor{
-            name:"/data/Projects/tocagaita/src/textures/tux.png",
-            uniform: "image_1",
+            name:"/data/Projects/tocagaita/src/textures/wall.jpg",
+            uniform: "texture_1",
         },
         &TextureDescriptor{
-            name:"/data/Projects/tocagaita/src/textures/wall.jpg",
-            uniform: "image_2",
-        }
+            name:"/data/Projects/tocagaita/src/textures/tux.png",
+            uniform: "texture_2",
+        },
     ]);
 
     let image_data = match image_data {
@@ -99,6 +99,10 @@ fn main() {
 
 //    triangle_1.program_mut().set_float("h_offset", 0.5);
 
+    let mut triangle_vec : Vec<Geometry> = Vec::new();
+    triangle_vec.push(triangle_1);
+    triangle_vec.push(triangle_2);
+
     let(width, height) = window.get_framebuffer_size();
     unsafe {
         gl::Viewport(0, 0, width, height);
@@ -113,7 +117,7 @@ fn main() {
 
         unsafe { gl::Clear(gl::COLOR_BUFFER_BIT); }
 
-        for element in &[&triangle_1, &triangle_2] {
+        for element in &triangle_vec {
             element.draw();
         }
 
