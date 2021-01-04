@@ -9,7 +9,7 @@ pub struct Geometry {
     vao: gl::types::GLuint,
     // shader program id.
     program: GLProgram,
-    texture: Option<Texture>,
+    textures: Option<Vec<Texture>>,
     idx_size: gl::types::GLint,
 }
 
@@ -34,9 +34,12 @@ impl Geometry {
         self.program().activate();
 
         unsafe {
-            if let Some(t) = &self.texture {
-                for texture_id in t.ids() {
-                    gl::BindTexture(gl::TEXTURE_2D, *texture_id)
+            if let Some(textures) = &self.textures {
+                let mut curr_pos: u32 = 0;
+                for texture in textures.iter() {
+                    gl::ActiveTexture(gl::TEXTURE0 + curr_pos);
+                    gl::BindTexture(gl::TEXTURE_2D, texture.id());
+                    curr_pos += 1;
                 }
             }
 
@@ -50,7 +53,7 @@ impl Geometry {
         data : &Vec<f32>,
         indexes: &Vec<i32>,
         program_id: GLProgram,
-        texture: Option<Texture>,
+        texture: Option<Vec<Texture>>,
         data_size: i32,
         offsets: &[(i32, usize)]) -> Geometry {
 
@@ -101,7 +104,7 @@ impl Geometry {
         return Geometry{
             vao: vao,
             program: program_id,
-            texture: texture,
+            textures: texture,
             idx_size: indexes.len() as gl::types::GLint
         };
     }

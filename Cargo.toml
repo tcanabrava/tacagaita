@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 gl = "0.14.0"
 image = "0.23"
+itertools = "0.10"
 
 [dependencies.glfw]
 version = "0.41.0"
