@@ -117,6 +117,8 @@ fn main() {
     let vec
         = translade * vec;
 
+    let ptr_slice = vec.as_slice().as_ptr();
+
     // Rotation Example:
     // let rot        = Matrix4::from_scaled_axis(&Vector3::x() * 3.14);
     // let rot_then_m = matrix * rot; // Right-multiplication is equivalent to prepending `rot` to `m`.
