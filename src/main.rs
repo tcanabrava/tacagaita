@@ -4,6 +4,7 @@ extern crate image;
 
 use glfw::{Action, Context, Key};
 use image::io::Reader as ImageReader;
+use nalgebra::{Matrix4, Vector4, Matrix3, Vector3};
 
 mod textures;
 mod shader;
@@ -97,11 +98,31 @@ fn main() {
         3,
         &[(3,0)]);
 
-//    triangle_1.program_mut().set_float("h_offset", 0.5);
-
     let mut triangle_vec : Vec<Geometry> = Vec::new();
     triangle_vec.push(triangle_1);
-    triangle_vec.push(triangle_2);
+  //  triangle_vec.push(triangle_2);
+
+    let vec =
+        Vector4::new(1.0,0.0,0.0,1.0);
+
+    let translade
+        = Matrix4::<f32>::identity();
+
+    let translade
+        = translade.append_translation(&Vector3::new(1.0, 1.0, 0.0));
+
+    let translade
+        = translade.append_scaling(2.0);
+
+    let vec
+        = translade * vec;
+
+    // Rotation Example:
+    // let rot        = Matrix4::from_scaled_axis(&Vector3::x() * 3.14);
+    // let rot_then_m = matrix * rot; // Right-multiplication is equivalent to prepending `rot` to `m`.
+    // let m_then_rot = rot * matrix; // Left-multiplication is equivalent to appending `rot` to `m`.
+
+    println!("Vetor resultado: {0}", vec);
 
     let(width, height) = window.get_framebuffer_size();
     unsafe {
