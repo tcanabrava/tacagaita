@@ -63,8 +63,6 @@ impl Geometry {
         let transform_loc = self.program.get_location(&transform_c_str)
             .expect("Error getting transform location, verify if it's used. the driver usually removes unused variables");
 
-        println!("Transformation matrix uniform location {0}", transform_loc);
-
         unsafe {
             let mut curr_pos: i32 = 0;
 

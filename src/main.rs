@@ -68,7 +68,7 @@ fn main() -> Result<(), anyhow::Error> {
         8,
         &[(3,0), (3,3), (2,6)]);
 
-    let triangle_2 = Geometry::from_data(
+    let mut triangle_2 = Geometry::from_data(
         &triangle2,
         &indexes_2,
         gl_program_2,
@@ -79,6 +79,8 @@ fn main() -> Result<(), anyhow::Error> {
 
     triangle_1.scale(0.5);
     triangle_1.translade( 0.2, 0.2, 0.0);
+
+    triangle_2.scale(4.0);
 
     let mut triangle_vec : Vec<Geometry> = Vec::new();
     triangle_vec.push(triangle_1);
