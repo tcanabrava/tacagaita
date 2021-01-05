@@ -3,6 +3,7 @@ extern crate gl;
 use image::{GenericImageView, DynamicImage};
 use image::io::Reader as ImageReader;
 use itertools::izip;
+use thiserror::Error;
 
 pub struct Texture {
     id: gl::types::GLuint,
@@ -14,9 +15,12 @@ pub struct TextureDescriptor<'a> {
     pub uniform: &'a str
 }
 
+#[derive(Error, Debug)]
 pub enum TextureError {
-    Load(String),
-    Decode(String),
+    #[error("Could not load file: `{0}`")]
+    Load(#[from] std::io::Error),
+    #[error("Could not decode file: `{0}`")]
+    Decode(#[from] image::ImageError),
 }
 
 impl Texture {
@@ -55,12 +59,9 @@ fn upload_to_gl(images: &Vec<DynamicImage>, descriptor: &[&TextureDescriptor]) -
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as gl::types::GLint);
 
             // Load the texture in memory
-            // TODO: Change the gl::RGB below to be Image Aware.
-            println!("Tipo da imagem: {:?}", image.color());
-
             let (color_type, data_ptr) = match image.color() {
-                image::ColorType::Rgb8 => (gl::RGB, image.as_rgb8().expect("Error converting").as_ptr() ),
-                image::ColorType::Rgba8 => (gl::RGBA, image.as_rgba8().expect("Error converting").as_ptr() ),
+                image::ColorType::Rgb8 => (gl::RGB, image.as_rgb8().unwrap().as_ptr() ),
+                image::ColorType::Rgba8 => (gl::RGBA, image.as_rgba8().unwrap().as_ptr() ),
                  _ => {
                      panic!("Tipo nao tratado: {:?}", image.color())
                 }
@@ -93,19 +94,11 @@ fn load_from_files(files: &[&TextureDescriptor]) -> Result<Vec<DynamicImage>, Te
 
     // TODO: Move to another function `load_from_files`.
     for &image_file in files {
-        let image_data = ImageReader::open(image_file.name);
-        let image_data = match image_data {
-            Ok(image_data) => image_data,
-            Err(e) => return Err(TextureError::Load(e.to_string())),
-        };
-
-        let image_data = image_data.decode();
-        let image_data = match image_data {
-            Ok(data)=> data,
-            Err(e) => return Err(TextureError::Decode(e.to_string())),
-        };
+        let image_data = ImageReader::open(image_file.name)?;
+        let image_data = image_data.decode()?;
         let image_data = image_data.flipv();
         images.push(image_data);
     }
+
     return Ok(images);
 }

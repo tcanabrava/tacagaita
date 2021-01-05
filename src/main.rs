@@ -3,8 +3,7 @@ extern crate gl;
 extern crate image;
 
 use glfw::{Action, Context, Key};
-use image::io::Reader as ImageReader;
-use nalgebra::{Matrix4, Vector4, Matrix3, Vector3};
+use nalgebra::{Matrix4, Vector4, Vector3};
 
 mod textures;
 mod shader;
@@ -15,31 +14,17 @@ use shader::*;
 use geometry::*;
 use textures::*;
 
-fn main() {
+
+fn main() -> Result<(), anyhow::Error> {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
     let (mut window, events) = create_window(&mut glfw);
 
-    let triangle_frag = Shader::from_fragment_src(
-    include_str!("shaders/main_triangle.frag"))
-        .expect("Error returning the fragment shader");
-
-    let triangle_vert = Shader::from_vertex_src(
-    include_str!("shaders/main_triangle.vert"))
-        .expect("Error returning the vertex shader");
-
-    let triangle2_vert = Shader::from_vertex_src(
-        include_str!("shaders/main_triangle.vert"))
-            .expect("Error returning the vertex shader");
-
-    let color_blue_frag = Shader::from_fragment_src(
-        include_str!("shaders/set_color_blue.frag"))
-        .expect("Error loading the blue fragment shader");
-
-    let gl_program_1 = GLProgram::from_shaders(&[&triangle_vert, &triangle_frag])
-        .expect("Error creating the gl program");
-
-    let gl_program_2 = GLProgram::from_shaders(&[&triangle2_vert, &color_blue_frag])
-        .expect("Error creating the blue shader program");
+    let triangle_frag = Shader::from_fragment_src(include_str!("shaders/main_triangle.frag"))?;
+    let triangle_vert = Shader::from_vertex_src(include_str!("shaders/main_triangle.vert"))?;
+    let triangle2_vert = Shader::from_vertex_src(include_str!("shaders/main_triangle.vert"))?;
+    let color_blue_frag = Shader::from_fragment_src(include_str!("shaders/set_color_blue.frag"))?;
+    let gl_program_1 = GLProgram::from_shaders(&[&triangle_vert, &triangle_frag])?;
+    let gl_program_2 = GLProgram::from_shaders(&[&triangle2_vert, &color_blue_frag])?;
 
     let image_data = Texture::from_files(&[
         &TextureDescriptor{
@@ -50,13 +35,7 @@ fn main() {
             name:"/data/Projects/tocagaita/src/textures/tux.png",
             uniform: "texture_2",
         },
-    ]);
-
-    let image_data = match image_data {
-        Ok(data) => data,
-        Err(TextureError::Load(err)) => { println!("Error Loading Texture: {}", err); return; },
-        Err(TextureError::Decode(err)) => { println!("Error decoding Texture: {}", err); return; }
-    };
+    ])?;
 
     let triangle1: Vec<f32> = vec![
         // vertices     |// Colors      // Texture
@@ -146,6 +125,8 @@ fn main() {
 
         window.swap_buffers();
     }
+
+    return Ok(());
 }
 
 fn create_window(glfw: &mut glfw::Glfw) -> (glfw::Window, std::sync::mpsc::Receiver<(f64, glfw::WindowEvent)>){

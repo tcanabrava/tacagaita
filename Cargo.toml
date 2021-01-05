@@ -11,6 +11,8 @@ gl = "0.14.0"
 image = "0.23"
 itertools = "0.10"
 nalgebra = "0.24"
+anyhow = "1.0"
+thiserror = "1.0"
 
 [dependencies.glfw]
 version = "0.41.0"

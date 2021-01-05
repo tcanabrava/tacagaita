@@ -150,7 +150,7 @@ impl GLProgram {
         return Ok(var_location);
     }
 
-    pub fn from_shaders(shaders: &[&Shader]) -> Result<GLProgram, bool> {
+    pub fn from_shaders(shaders: &[&Shader]) -> Result<GLProgram, std::io::Error> {
         let shader_program_id : u32 = unsafe { gl::CreateProgram() };
         println!("Creating shader program with id: {0}", shader_program_id);
 
@@ -168,7 +168,7 @@ impl GLProgram {
 
         // TODO: Get the link errors and return here.
         if has_errors {
-            return Err(false);
+            return Err(std::io::Error::new(std::io::ErrorKind::Other, "Bleh"));
         }
 
         return Ok(GLProgram{
