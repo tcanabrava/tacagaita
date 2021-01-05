@@ -8,10 +8,11 @@ out vec3 ourColor;
 out vec2 ourTextCoord;
 
 uniform float h_offset;
+uniform mat4 transform;
 
 void main()
 {
-    gl_Position = vec4(Position.x + h_offset, Position.y, Position.z, 1.0);
+    gl_Position = transform * vec4(Position.x + h_offset, Position.y, Position.z, 1.0);
     ourColor = Color;
     ourTextCoord = TextCoord;
 }

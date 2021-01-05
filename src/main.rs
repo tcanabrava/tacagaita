@@ -3,7 +3,6 @@ extern crate gl;
 extern crate image;
 
 use glfw::{Action, Context, Key};
-use nalgebra::{Matrix4, Vector4, Vector3};
 
 mod textures;
 mod shader;
@@ -61,7 +60,7 @@ fn main() -> Result<(), anyhow::Error> {
         0, 1, 2,
     ];
 
-    let triangle_1 = Geometry::from_data(
+    let mut triangle_1 = Geometry::from_data(
         &triangle1,
         &indexes_1,
         gl_program_1,
@@ -77,33 +76,13 @@ fn main() -> Result<(), anyhow::Error> {
         3,
         &[(3,0)]);
 
+
+    triangle_1.scale(0.5);
+    triangle_1.translade( 0.2, 0.2, 0.0);
+
     let mut triangle_vec : Vec<Geometry> = Vec::new();
     triangle_vec.push(triangle_1);
-  //  triangle_vec.push(triangle_2);
-
-    let vec =
-        Vector4::new(1.0,0.0,0.0,1.0);
-
-    let translade
-        = Matrix4::<f32>::identity();
-
-    let translade
-        = translade.append_translation(&Vector3::new(1.0, 1.0, 0.0));
-
-    let translade
-        = translade.append_scaling(2.0);
-
-    let vec
-        = translade * vec;
-
-    let ptr_slice = vec.as_slice().as_ptr();
-
-    // Rotation Example:
-    // let rot        = Matrix4::from_scaled_axis(&Vector3::x() * 3.14);
-    // let rot_then_m = matrix * rot; // Right-multiplication is equivalent to prepending `rot` to `m`.
-    // let m_then_rot = rot * matrix; // Left-multiplication is equivalent to appending `rot` to `m`.
-
-    println!("Vetor resultado: {0}", vec);
+    triangle_vec.push(triangle_2);
 
     let(width, height) = window.get_framebuffer_size();
     unsafe {

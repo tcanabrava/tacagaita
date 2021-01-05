@@ -5,6 +5,8 @@ use itertools::izip;
 
 use crate::shader::*;
 use crate::textures::*;
+use nalgebra::{Matrix4, Vector4, Vector3};
+use std::ffi::{CString};
 
 pub struct Geometry {
     // vao id.
@@ -13,6 +15,7 @@ pub struct Geometry {
     program: GLProgram,
     textures: Vec<Texture>,
     idx_size: gl::types::GLint,
+    transformations: Matrix4<f32>,
 }
 
 impl Geometry {
@@ -32,11 +35,40 @@ impl Geometry {
         return self.idx_size;
     }
 
+    pub fn scale(&mut self, scale_factor: f32) {
+        self.transformations.append_scaling_mut(scale_factor)
+    }
+
+    pub fn translade(&mut self, x: f32, y:f32, z:f32) {
+        self.transformations.append_translation_mut(&Vector3::new(x,y,z))
+    }
+
+    pub fn reset_transformations(&mut self) {
+        self.transformations = Matrix4::identity();
+    }
+
+    pub fn rotate(&mut self) {
+        println!("Rotate: Not implemented yet");
+        // Rotation Example:
+        // let rot        = Matrix4::from_scaled_axis(&Vector3::x() * 3.14);
+        // let rot_then_m = matrix * rot; // Right-multiplication is equivalent to prepending `rot` to `m`.
+        // let m_then_rot = rot * matrix; // Left-multiplication is equivalent to appending `rot` to `m`.
+    }
+
     pub fn draw(&self) {
         self.program().activate();
 
+        // load transformation matrix:
+        let transform_c_str = CString::new("transform").expect("seriously");
+        let transform_loc = self.program.get_location(&transform_c_str)
+            .expect("Error getting transform location, verify if it's used. the driver usually removes unused variables");
+
+        println!("Transformation matrix uniform location {0}", transform_loc);
+
         unsafe {
             let mut curr_pos: i32 = 0;
+
+            gl::UniformMatrix4fv(transform_loc, 1, gl::FALSE, self.transformations.as_slice().as_ptr());
             for texture in self.textures.iter() {
                 gl::ActiveTexture(gl::TEXTURE0 + (curr_pos as u32));
                 gl::BindTexture(gl::TEXTURE_2D, texture.id());
@@ -109,7 +141,8 @@ impl Geometry {
             vao: vao,
             program: program_id,
             textures: textures,
-            idx_size: indexes.len() as gl::types::GLint
+            idx_size: indexes.len() as gl::types::GLint,
+            transformations: Matrix4::identity(),
         };
     }
 }
