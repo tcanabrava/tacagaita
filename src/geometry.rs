@@ -11,7 +11,7 @@ pub struct Geometry {
     vao: gl::types::GLuint,
     // shader program id.
     program: GLProgram,
-    textures: Option<Vec<Texture>>,
+    textures: Vec<Texture>,
     idx_size: gl::types::GLint,
 }
 
@@ -36,13 +36,11 @@ impl Geometry {
         self.program().activate();
 
         unsafe {
-            if let Some(textures) = &self.textures {
-                let mut curr_pos: i32 = 0;
-                for texture in textures.iter() {
-                    gl::ActiveTexture(gl::TEXTURE0 + (curr_pos as u32));
-                    gl::BindTexture(gl::TEXTURE_2D, texture.id());
-                    curr_pos += 1;
-                }
+            let mut curr_pos: i32 = 0;
+            for texture in self.textures.iter() {
+                gl::ActiveTexture(gl::TEXTURE0 + (curr_pos as u32));
+                gl::BindTexture(gl::TEXTURE_2D, texture.id());
+                curr_pos += 1;
             }
 
             gl::BindVertexArray(self.vao());
@@ -55,7 +53,7 @@ impl Geometry {
         data : &Vec<f32>,
         indexes: &Vec<i32>,
         mut program_id: GLProgram,
-        textures: Option<Vec<Texture>>,
+        textures: Vec<Texture>,
         data_size: i32,
         offsets: &[(i32, usize)]) -> Geometry {
 
@@ -63,10 +61,8 @@ impl Geometry {
         let mut vao: gl::types::GLuint = 0;
         let mut ebo: gl::types::GLuint = 0;
 
-        if let Some(texture_vec) = &textures {
-            for (idx, tex) in izip!(0..texture_vec.len(), texture_vec) {
-                program_id.set_int(tex.uniform(), idx as i32);
-            }
+        for (idx, tex) in izip!(0..textures.len(), &textures) {
+            program_id.set_int(tex.uniform(), idx as i32);
         }
 
         unsafe {

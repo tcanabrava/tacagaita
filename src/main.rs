@@ -65,7 +65,7 @@ fn main() -> Result<(), anyhow::Error> {
         &triangle1,
         &indexes_1,
         gl_program_1,
-        Some(image_data),
+        image_data,
         8,
         &[(3,0), (3,3), (2,6)]);
 
@@ -73,7 +73,7 @@ fn main() -> Result<(), anyhow::Error> {
         &triangle2,
         &indexes_2,
         gl_program_2,
-        None,
+        Vec::new(),
         3,
         &[(3,0)]);
 
