@@ -45,7 +45,7 @@ fn upload_to_gl(images: &Vec<DynamicImage>, descriptor: &[&TextureDescriptor]) -
     let mut texture_id: gl::types::GLuint = 0;
     let mut result_ids: Vec<Texture> = Vec::new();
 
-    for (idx, image, &uniform_name) in izip!(0..images.len(), images, descriptor) {
+    for (_idx, image, &uniform_name) in izip!(0..images.len(), images, descriptor) {
         unsafe {
             gl::GenTextures(1, &mut texture_id);
             gl::BindTexture(gl::TEXTURE_2D, texture_id);

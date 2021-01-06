@@ -5,7 +5,7 @@ use itertools::izip;
 
 use crate::shader::*;
 use crate::textures::*;
-use nalgebra::{Matrix4, Vector4, Vector3};
+use nalgebra::{Matrix4, Vector3};
 use std::ffi::{CString};
 
 pub struct Geometry {
