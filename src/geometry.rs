@@ -3,8 +3,9 @@ extern crate gl;
 
 use itertools::izip;
 
-use crate::shader::*;
+use crate::gl_program::GLProgram;
 use crate::textures::*;
+
 use nalgebra::{Matrix4, Vector3};
 use std::ffi::{CString};
 
@@ -62,7 +63,6 @@ impl Geometry {
             Angle::Z(angle) => Matrix4::from_scaled_axis(&Vector3::z() * FRAC * angle)
         };
 
-        println!("Applying transformation matrix: {0}", rot);
         self.transformations = self.transformations * rot;
     }
 
