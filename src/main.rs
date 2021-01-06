@@ -79,6 +79,7 @@ fn main() -> Result<(), anyhow::Error> {
 
     triangle_1.scale(0.5);
     triangle_1.translade( 0.2, 0.2, 0.0);
+    triangle_1.rotate(Angle::Z(45.0));
 
     triangle_2.scale(4.0);
 

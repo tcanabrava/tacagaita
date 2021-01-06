@@ -8,6 +8,12 @@ use crate::textures::*;
 use nalgebra::{Matrix4, Vector3};
 use std::ffi::{CString};
 
+pub enum Angle {
+    X(f32),
+    Y(f32),
+    Z(f32)
+}
+
 pub struct Geometry {
     // vao id.
     vao: gl::types::GLuint,
@@ -47,12 +53,17 @@ impl Geometry {
         self.transformations = Matrix4::identity();
     }
 
-    pub fn rotate(&mut self) {
-        println!("Rotate: Not implemented yet");
-        // Rotation Example:
-        // let rot        = Matrix4::from_scaled_axis(&Vector3::x() * 3.14);
-        // let rot_then_m = matrix * rot; // Right-multiplication is equivalent to prepending `rot` to `m`.
-        // let m_then_rot = rot * matrix; // Left-multiplication is equivalent to appending `rot` to `m`.
+    pub fn rotate(&mut self, angle: Angle) {
+        const FRAC: f32 = std::f32::consts::PI / 180.0;
+
+        let rot = match angle {
+            Angle::X(angle) => Matrix4::from_scaled_axis(&Vector3::x() * FRAC * angle),
+            Angle::Y(angle) => Matrix4::from_scaled_axis(&Vector3::y() * FRAC * angle),
+            Angle::Z(angle) => Matrix4::from_scaled_axis(&Vector3::z() * FRAC * angle)
+        };
+
+        println!("Applying transformation matrix: {0}", rot);
+        self.transformations = self.transformations * rot;
     }
 
     pub fn draw(&self) {
