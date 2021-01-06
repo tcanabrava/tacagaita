@@ -46,7 +46,6 @@ impl Geometry {
     }
 
     pub fn draw(&self) {
-
         // Activate loads the uniforms, so we need to set the uniform before activating the program.
         self.program().activate();
         unsafe {

@@ -1,5 +1,6 @@
 use crate::geometry::*;
 use crate::transformation::Transformation;
+use crate::gl_program::GLProgram;
 
 pub struct Scene {
     geometries: Vec<Geometry>,
@@ -24,6 +25,10 @@ impl Scene {
         // Apply transformations here.
 
         for element in &mut self.geometries {
+            let program = element.program_mut();
+            program.set_matrix("projection", self.projection_matrix.internal_ptr());
+            program.set_matrix("view", self.view_matrix.internal_ptr());
+
             element.before_draw();
             element.draw();
         }
