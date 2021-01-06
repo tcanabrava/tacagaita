@@ -3,14 +3,16 @@ use crate::transformation::Transformation;
 
 pub struct Scene {
     geometries: Vec<Geometry>,
-    matrix: Transformation,
+    projection_matrix: Transformation,
+    view_matrix: Transformation,
 }
 
 impl Scene {
     pub fn new() -> Scene {
         return Scene {
             geometries: Vec::new(),
-            matrix: Transformation::new(),
+            projection_matrix: Transformation::new(),
+            view_matrix: Transformation::new(),
         }
     }
 
@@ -18,13 +20,13 @@ impl Scene {
         self.geometries = geometries;
     }
 
-    pub fn matrix_mut(&mut self) -> &mut Transformation {
-        return &mut self.matrix;
-    }
+    pub fn render(&mut self) {
+        // Apply transformations here.
 
-    pub fn render(&self) {
-        for element in &self.geometries {
+        for element in &mut self.geometries {
+            element.before_draw();
             element.draw();
         }
     }
+
 }

@@ -1,4 +1,7 @@
 use nalgebra::{Matrix4, Vector3};
+use std::ffi::{CString};
+
+extern crate gl;
 
 pub enum Angle {
     X(f32),
@@ -43,5 +46,9 @@ impl Transformation {
 
     pub fn internal_ptr(&self) -> *const f32 {
         return self.transformations.as_slice().as_ptr();
+    }
+
+    pub fn set_uniform(&self) {
+
     }
 }

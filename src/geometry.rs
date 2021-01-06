@@ -40,18 +40,17 @@ impl Geometry {
         return &mut self.matrix;
     }
 
+    pub fn before_draw(&mut self) {
+        let ptr = self.matrix_mut().internal_ptr();
+        self.program_mut().set_matrix("model", ptr);
+    }
+
     pub fn draw(&self) {
+
+        // Activate loads the uniforms, so we need to set the uniform before activating the program.
         self.program().activate();
-
-        // load transformation matrix:
-        let transform_c_str = CString::new("transform").expect("seriously");
-        let transform_loc = self.program.get_location(&transform_c_str)
-            .expect("Error getting transform location, verify if it's used. the driver usually removes unused variables");
-
         unsafe {
             let mut curr_pos: i32 = 0;
-
-            gl::UniformMatrix4fv(transform_loc, 1, gl::FALSE, self.matrix.internal_ptr());
             for texture in self.textures.iter() {
                 gl::ActiveTexture(gl::TEXTURE0 + (curr_pos as u32));
                 gl::BindTexture(gl::TEXTURE_2D, texture.id());

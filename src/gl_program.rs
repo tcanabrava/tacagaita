@@ -13,6 +13,7 @@ pub struct GLProgram {
     floats: HashMap<CString, f32>,
     ints: HashMap<CString, i32>,
     bools: HashMap<CString, bool>,
+    transformation_matrixes: HashMap<CString, *const f32>
 }
 
 impl GLProgram {
@@ -37,6 +38,11 @@ impl GLProgram {
             for (key, &value) in self.bools.iter() {
                 let location = self.get_location(&key).expect("Panic!");
                 gl::Uniform1i(location, value as gl::types::GLint);
+            }
+
+            for (key, &value) in self.transformation_matrixes.iter() {
+                let location = self.get_location(key).expect("Panic!");
+                gl::UniformMatrix4fv(location, 1, gl::FALSE, value);
             }
         }
     }
@@ -84,6 +90,11 @@ impl GLProgram {
         self.ints.insert(c_str, value);
     }
 
+    pub fn set_matrix(&mut self, var: &str, value: *const f32) {
+        let c_str = CString::new(var).expect("Error converting string");
+        self.transformation_matrixes.insert(c_str, value);
+    }
+
     // I seriously need to learn how to handle errors in rust.
     pub fn get_location(&self, var: &CString) -> Result<gl::types::GLint, String> {
         let var_location = unsafe { gl::GetUniformLocation(self.id, var.as_ptr()) };
@@ -119,7 +130,8 @@ impl GLProgram {
             id: shader_program_id,
             floats: HashMap::new(),
             ints: HashMap::new(),
-            bools: HashMap::new()
+            bools: HashMap::new(),
+            transformation_matrixes: HashMap::new(),
          });
     }
 
