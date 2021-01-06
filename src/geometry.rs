@@ -5,15 +5,9 @@ use itertools::izip;
 
 use crate::gl_program::GLProgram;
 use crate::textures::*;
+use crate::transformation::Transformation;
 
-use nalgebra::{Matrix4, Vector3};
 use std::ffi::{CString};
-
-pub enum Angle {
-    X(f32),
-    Y(f32),
-    Z(f32)
-}
 
 pub struct Geometry {
     // vao id.
@@ -22,7 +16,7 @@ pub struct Geometry {
     program: GLProgram,
     textures: Vec<Texture>,
     idx_size: gl::types::GLint,
-    transformations: Matrix4<f32>,
+    matrix: Transformation,
 }
 
 impl Geometry {
@@ -42,28 +36,8 @@ impl Geometry {
         return self.idx_size;
     }
 
-    pub fn scale(&mut self, scale_factor: f32) {
-        self.transformations.append_scaling_mut(scale_factor)
-    }
-
-    pub fn translade(&mut self, x: f32, y:f32, z:f32) {
-        self.transformations.append_translation_mut(&Vector3::new(x,y,z))
-    }
-
-    pub fn reset_transformations(&mut self) {
-        self.transformations = Matrix4::identity();
-    }
-
-    pub fn rotate(&mut self, angle: Angle) {
-        const FRAC: f32 = std::f32::consts::PI / 180.0;
-
-        let rot = match angle {
-            Angle::X(angle) => Matrix4::from_scaled_axis(&Vector3::x() * FRAC * angle),
-            Angle::Y(angle) => Matrix4::from_scaled_axis(&Vector3::y() * FRAC * angle),
-            Angle::Z(angle) => Matrix4::from_scaled_axis(&Vector3::z() * FRAC * angle)
-        };
-
-        self.transformations = self.transformations * rot;
+    pub fn matrix_mut(&mut self) -> &mut Transformation {
+        return &mut self.matrix;
     }
 
     pub fn draw(&self) {
@@ -77,7 +51,7 @@ impl Geometry {
         unsafe {
             let mut curr_pos: i32 = 0;
 
-            gl::UniformMatrix4fv(transform_loc, 1, gl::FALSE, self.transformations.as_slice().as_ptr());
+            gl::UniformMatrix4fv(transform_loc, 1, gl::FALSE, self.matrix.internal_ptr());
             for texture in self.textures.iter() {
                 gl::ActiveTexture(gl::TEXTURE0 + (curr_pos as u32));
                 gl::BindTexture(gl::TEXTURE_2D, texture.id());
@@ -151,7 +125,7 @@ impl Geometry {
             program: program_id,
             textures: textures,
             idx_size: indexes.len() as gl::types::GLint,
-            transformations: Matrix4::identity(),
+            matrix: Transformation::new(),
         };
     }
 }

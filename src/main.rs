@@ -9,11 +9,13 @@ mod shader;
 mod helpers;
 mod geometry;
 mod gl_program;
+mod transformation;
 
 use shader::*;
 use geometry::*;
 use textures::*;
 use gl_program::GLProgram;
+use transformation::Angle;
 
 fn main() -> Result<(), anyhow::Error> {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -78,12 +80,14 @@ fn main() -> Result<(), anyhow::Error> {
         &[(3,0)]);
 
 
-    triangle_1.scale(0.5);
-    triangle_1.translade( 0.2, 0.2, 0.0);
-    triangle_1.rotate(Angle::Z(45.0));
-    triangle_1.rotate(Angle::Y(45.0));
+    let triangle_matrix = triangle_1.matrix_mut();
+    triangle_matrix.scale(0.5);
+    triangle_matrix.translade( 0.2, 0.2, 0.0);
+    triangle_matrix.rotate(Angle::Z(45.0));
+    triangle_matrix.rotate(Angle::Y(45.0));
 
-    triangle_2.scale(4.0);
+    let triangle_matrix_2 = triangle_2.matrix_mut();
+    triangle_matrix_2.scale(4.0);
 
     let mut triangle_vec : Vec<Geometry> = Vec::new();
     triangle_vec.push(triangle_1);
