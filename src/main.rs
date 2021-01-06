@@ -10,10 +10,12 @@ mod helpers;
 mod geometry;
 mod gl_program;
 mod transformation;
+mod scene;
 
 use shader::*;
 use geometry::*;
 use textures::*;
+use scene::Scene;
 use gl_program::GLProgram;
 use transformation::Angle;
 
@@ -93,6 +95,9 @@ fn main() -> Result<(), anyhow::Error> {
     triangle_vec.push(triangle_1);
     triangle_vec.push(triangle_2);
 
+    let mut scene = Scene::new();
+    scene.add_geometries(triangle_vec);
+
     let(width, height) = window.get_framebuffer_size();
     unsafe {
         gl::Viewport(0, 0, width, height);
@@ -107,9 +112,7 @@ fn main() -> Result<(), anyhow::Error> {
 
         unsafe { gl::Clear(gl::COLOR_BUFFER_BIT); }
 
-        for element in &triangle_vec {
-            element.draw();
-        }
+        scene.render();
 
         window.swap_buffers();
     }
