@@ -84,17 +84,14 @@ fn main() -> Result<(), anyhow::Error> {
 
 
     let triangle_matrix = triangle_1.matrix_mut();
-    triangle_matrix.scale(0.5);
-    triangle_matrix.translade( 0.2, 0.2, 0.0);
-    triangle_matrix.rotate(Angle::Z(45.0));
-    triangle_matrix.rotate(Angle::Y(45.0));
+    triangle_matrix.rotate(Angle::X(-55.0));
 
     let triangle_matrix_2 = triangle_2.matrix_mut();
     triangle_matrix_2.scale(4.0);
 
     let mut scene = Scene::new();
     scene.geometries().push(triangle_1);
-    scene.geometries().push(triangle_2);
+//    scene.geometries().push(triangle_2);
 
     scene.view().translade(0.0, 0.0, -3.0);
     scene.projection().perspactive(45.0, 800.0 / 600.0, 0.1, 100.0);
