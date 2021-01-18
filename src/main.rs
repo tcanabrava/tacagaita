@@ -91,12 +91,9 @@ fn main() -> Result<(), anyhow::Error> {
     let triangle_matrix_2 = triangle_2.matrix_mut();
     triangle_matrix_2.scale(4.0);
 
-    let mut triangle_vec : Vec<Geometry> = Vec::new();
-    triangle_vec.push(triangle_1);
-    triangle_vec.push(triangle_2);
-
     let mut scene = Scene::new();
-    scene.add_geometries(triangle_vec);
+    scene.geometries().push(triangle_1);
+    scene.geometries().push(triangle_2);
 
     let(width, height) = window.get_framebuffer_size();
     unsafe {

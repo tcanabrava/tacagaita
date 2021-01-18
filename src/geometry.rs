@@ -63,8 +63,8 @@ impl Geometry {
     }
 
     pub fn from_data(
-        data : &Vec<f32>,
-        indexes: &Vec<i32>,
+        data : &[f32],
+        indexes: &[i32],
         mut program_id: GLProgram,
         textures: Vec<Texture>,
         data_size: i32,

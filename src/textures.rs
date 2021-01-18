@@ -41,7 +41,7 @@ impl Texture {
     }
 }
 
-fn upload_to_gl(images: &Vec<DynamicImage>, descriptor: &[&TextureDescriptor]) -> Vec<Texture> {
+fn upload_to_gl(images: &[DynamicImage], descriptor: &[&TextureDescriptor]) -> Vec<Texture> {
     let mut texture_id: gl::types::GLuint = 0;
     let mut result_ids: Vec<Texture> = Vec::new();
 

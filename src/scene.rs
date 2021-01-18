@@ -17,8 +17,8 @@ impl Scene {
         }
     }
 
-    pub fn add_geometries(&mut self, geometries: Vec<Geometry>) {
-        self.geometries = geometries;
+    pub fn geometries(&mut self, ) -> &mut Vec<Geometry> {
+        return &mut self.geometries;
     }
 
     pub fn render(&mut self) {
