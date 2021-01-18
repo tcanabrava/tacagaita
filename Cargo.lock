@@ -383,6 +383,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "nalgebra-glm"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b5f4543e9d67ef672028a9baf4c31dbb64a53f659facf17db2d89dab7e2c8f2"
+dependencies = [
+ "approx",
+ "nalgebra",
+ "num-traits",
+ "simba",
+]
+
+[[package]]
 name = "num-complex"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -676,6 +688,7 @@ dependencies = [
  "image",
  "itertools",
  "nalgebra",
+ "nalgebra-glm",
  "thiserror",
 ]
 

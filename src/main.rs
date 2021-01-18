@@ -1,6 +1,7 @@
 extern crate glfw;
 extern crate gl;
 extern crate image;
+extern crate nalgebra_glm as glm;
 
 use glfw::{Action, Context, Key};
 
