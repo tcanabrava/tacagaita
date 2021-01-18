@@ -17,6 +17,14 @@ impl Scene {
         }
     }
 
+    pub fn projection(&mut self) -> &mut Transformation {
+        return &mut self.projection_matrix;
+    }
+
+    pub fn view(&mut self) -> &mut Transformation {
+        return &mut self.view_matrix;
+    }
+
     pub fn geometries(&mut self, ) -> &mut Vec<Geometry> {
         return &mut self.geometries;
     }

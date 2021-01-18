@@ -28,15 +28,18 @@ impl Transformation {
     }
 
     pub fn rotate(&mut self, angle: Angle) {
-        const FRAC: f32 = std::f32::consts::PI / 180.0;
 
         let rot = match angle {
-            Angle::X(angle) => Matrix4::from_scaled_axis(&Vector3::x() * FRAC * angle),
-            Angle::Y(angle) => Matrix4::from_scaled_axis(&Vector3::y() * FRAC * angle),
-            Angle::Z(angle) => Matrix4::from_scaled_axis(&Vector3::z() * FRAC * angle)
+            Angle::X(angle) => Matrix4::from_scaled_axis(&Vector3::x() * radians(angle)),
+            Angle::Y(angle) => Matrix4::from_scaled_axis(&Vector3::y() * radians(angle)),
+            Angle::Z(angle) => Matrix4::from_scaled_axis(&Vector3::z() * radians(angle))
         };
 
         self.transformations = self.transformations * rot;
+    }
+
+    pub fn perspactive(&mut self, aspect: f32, fovy: f32, znear: f32, zfar: f32) {
+        self.transformations = glm::perspective( radians(aspect), fovy, znear, zfar);
     }
 
     pub fn new() -> Transformation {
@@ -52,4 +55,9 @@ impl Transformation {
     pub fn set_uniform(&self) {
 
     }
+}
+
+fn radians(degrees: f32) -> f32 {
+    const FRAC: f32 = std::f32::consts::PI / 180.0;
+    return degrees * FRAC;
 }
