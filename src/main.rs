@@ -29,7 +29,7 @@ fn main() -> Result<(), anyhow::Error> {
     let triangle2_vert = Shader::from_vertex_src(include_str!("shaders/main_triangle.vert"))?;
     let color_blue_frag = Shader::from_fragment_src(include_str!("shaders/set_color_blue.frag"))?;
     let gl_program_1 = GLProgram::from_shaders(&[&triangle_vert, &triangle_frag])?;
-    let gl_program_2 = GLProgram::from_shaders(&[&triangle2_vert, &color_blue_frag])?;
+ //   let gl_program_2 = GLProgram::from_shaders(&[&triangle2_vert, &color_blue_frag])?;
 
     let image_data = Texture::from_files(&[
         &TextureDescriptor{
@@ -42,6 +42,7 @@ fn main() -> Result<(), anyhow::Error> {
         },
     ])?;
 
+    /*
     let triangle1: Vec<f32> = vec![
         // vertices     |// Colors      // Texture
         0.5,  0.5, 0.0,  1.0, 0.0, 0.0,  1.0, 1.0, // top right     // 0
@@ -55,42 +56,89 @@ fn main() -> Result<(), anyhow::Error> {
         1, 2, 3
     ];
 
-
-    let triangle2: Vec<f32> = vec![
-        0.1,  -0.2, 0.0,
-        0.15, -0.1, 0.0,
-        0.2,  -0.2, 0.0
-    ];
-
-    let indexes_2: Vec<i32> = vec![
-        0, 1, 2,
-    ];
-
     let mut triangle_1 = Geometry::from_data(
         &triangle1,
         &indexes_1,
+        gl_program_1,
+        Vec::new(),
+        8,
+        &[(3,0), (3,3), (2,6)]);
+    */
+
+    let cube: Vec<f32> = vec![
+        // vertices       |// Colors     // Texture
+        // Bottom
+        -0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 1.0,
+         0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+         0.5,  0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+         0.5,  0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+        -0.5,  0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0,
+        -0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+
+        // Face
+        -0.5, -0.5,  0.5, 0.0, 0.0, 0.0, 0.0, 0.0,
+         0.5, -0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+         0.5,  0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 1.0,
+         0.5,  0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 1.0,
+        -0.5,  0.5,  0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+        -0.5, -0.5,  0.5, 0.0, 0.0, 0.0, 0.0, 0.0,
+
+        // Lateral Left
+        -0.5,  0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+        -0.5,  0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 1.0,
+        -0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+        -0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+        -0.5, -0.5,  0.5, 0.0, 0.0, 0.0, 0.0, 0.0,
+        -0.5,  0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+
+        // Lateral Right
+         0.5,  0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+         0.5,  0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 1.0,
+         0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+         0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+         0.5, -0.5,  0.5, 0.0, 0.0, 0.0, 0.0, 0.0,
+         0.5,  0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+
+         // Floor
+        -0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+         0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 1.0,
+         0.5, -0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+         0.5, -0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+        -0.5, -0.5,  0.5, 0.0, 0.0, 0.0, 0.0, 0.0,
+        -0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+
+        // Ceiling
+        -0.5,  0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+         0.5,  0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 1.0,
+         0.5,  0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+         0.5,  0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+        -0.5,  0.5,  0.5, 0.0, 0.0, 0.0, 0.0, 0.0,
+        -0.5,  0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0
+    ];
+
+    let cube_indexes: Vec<i32> = vec![
+         0,  1,  2,  3,  4,  5,
+         6,  7,  8,  9, 10, 11,
+        12, 13, 14, 15, 16, 17,
+        18, 19, 20, 21, 22, 23,
+        24, 25, 26, 27, 28, 29,
+        30, 31, 32, 33, 34, 35,
+    ];
+
+    let cube_1 = Geometry::from_data(
+        &cube,
+        &cube_indexes,
         gl_program_1,
         image_data,
         8,
         &[(3,0), (3,3), (2,6)]);
 
-    let mut triangle_2 = Geometry::from_data(
-        &triangle2,
-        &indexes_2,
-        gl_program_2,
-        Vec::new(),
-        3,
-        &[(3,0)]);
 
-
-    let triangle_matrix = triangle_1.matrix_mut();
-    triangle_matrix.rotate(Angle::X(-55.0));
-
-    let triangle_matrix_2 = triangle_2.matrix_mut();
-    triangle_matrix_2.scale(4.0);
+//    let triangle_matrix = triangle_1.matrix_mut();
+//    triangle_matrix.rotate(Angle::X(-55.0));
 
     let mut scene = Scene::new();
-    scene.geometries().push(triangle_1);
+    scene.geometries().push(cube_1);
 //    scene.geometries().push(triangle_2);
 
     scene.view().translade(0.0, 0.0, -3.0);
