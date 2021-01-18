@@ -1,11 +1,12 @@
 
 extern crate gl;
-
+use rand::Rng;
 use itertools::izip;
 
 use crate::gl_program::GLProgram;
 use crate::textures::*;
 use crate::transformation::Transformation;
+use crate::transformation::radians;
 
 use std::ffi::{CString};
 
@@ -17,6 +18,7 @@ pub struct Geometry {
     textures: Vec<Texture>,
     idx_size: gl::types::GLint,
     matrix: Transformation,
+    positions: Vec<nalgebra::Vector3<f32>>
 }
 
 impl Geometry {
@@ -40,12 +42,16 @@ impl Geometry {
         return &mut self.matrix;
     }
 
+    pub fn set_positions(&mut self, positions: Vec<nalgebra::Vector3<f32>>) {
+        self.positions = positions;
+    }
+
     pub fn before_draw(&mut self) {
         let ptr = self.matrix_mut().internal_ptr();
         self.program_mut().set_matrix("model", ptr);
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&mut self) {
         // Activate loads the uniforms, so we need to set the uniform before activating the program.
         self.program().activate();
         unsafe {
@@ -57,7 +63,25 @@ impl Geometry {
             }
 
             gl::BindVertexArray(self.vao());
-            gl::DrawElements(gl::TRIANGLES, self.idx_size(), gl::UNSIGNED_INT, std::ptr::null());
+            if self.positions.is_empty() {
+                gl::DrawElements(gl::TRIANGLES, self.idx_size(), gl::UNSIGNED_INT, std::ptr::null());
+            } else {
+                // Hack to move some elements though the screen.
+                // TODO: understand lifetimes here.
+                let position_copy = self.positions.clone();
+                for position in position_copy {
+
+                    let angle: f32 = radians(20.0 * rand::thread_rng().gen::<f32>());
+                    let axis = glm::vec3(1.0, 0.3, 0.5);
+                    let mut model = nalgebra::Matrix4::identity();
+
+                    model = glm::translate(&model, &position);
+                    model = glm::rotate(&model, radians(angle), &axis);
+                    self.program_mut().set_matrix("model",model.as_slice().as_ptr());
+
+                    gl::DrawElements(gl::TRIANGLES, self.idx_size(), gl::UNSIGNED_INT, std::ptr::null());
+                }
+            }
             gl::BindVertexArray(0);
         }
     }
@@ -124,6 +148,7 @@ impl Geometry {
             textures: textures,
             idx_size: indexes.len() as gl::types::GLint,
             matrix: Transformation::new(),
+            positions: Vec::new()
         };
     }
 }

@@ -57,7 +57,7 @@ impl Transformation {
     }
 }
 
-fn radians(degrees: f32) -> f32 {
+pub fn radians(degrees: f32) -> f32 {
     const FRAC: f32 = std::f32::consts::PI / 180.0;
     return degrees * FRAC;
 }

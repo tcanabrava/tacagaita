@@ -18,7 +18,6 @@ use geometry::*;
 use textures::*;
 use scene::Scene;
 use gl_program::GLProgram;
-use transformation::Angle;
 
 fn main() -> Result<(), anyhow::Error> {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -125,7 +124,7 @@ fn main() -> Result<(), anyhow::Error> {
         30, 31, 32, 33, 34, 35,
     ];
 
-    let cube_1 = Geometry::from_data(
+    let mut cube_1 = Geometry::from_data(
         &cube,
         &cube_indexes,
         gl_program_1,
@@ -133,6 +132,18 @@ fn main() -> Result<(), anyhow::Error> {
         8,
         &[(3,0), (3,3), (2,6)]);
 
+    cube_1.set_positions(vec![
+//        glm::vec3( 0.0,  0.0,  0.0),
+//        glm::vec3( 0.2,  0.1, 0.3),
+        glm::vec3(-1.5, -2.2, -2.5),
+        glm::vec3(-3.8, -2.0, -12.3),
+        glm::vec3( 2.4, -0.4, -3.5),
+        glm::vec3(-1.7,  3.0, -7.5),
+        glm::vec3( 1.3, -2.0, -2.5),
+        glm::vec3( 1.5,  2.0, -2.5),
+        glm::vec3( 1.5,  0.2, -1.5),
+        glm::vec3(-1.3,  1.0, -1.5)
+    ]);
 
 //    let triangle_matrix = triangle_1.matrix_mut();
 //    triangle_matrix.rotate(Angle::X(-55.0));
