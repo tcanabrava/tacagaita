@@ -11,8 +11,17 @@ pub struct Texture {
 }
 
 pub struct TextureDescriptor<'a> {
-    pub name: &'a str,
+    pub name: String,
     pub uniform: &'a str
+}
+
+impl<'a> TextureDescriptor<'a> {
+    pub fn new(name: &str, uniform: &'a str) -> Self {
+        return Self {
+            name: format!("{}/src/textures/{}", env!("CARGO_MANIFEST_DIR"), name),
+            uniform
+        };
+    }
 }
 
 #[derive(Error, Debug)]
@@ -94,7 +103,7 @@ fn load_from_files(files: &[&TextureDescriptor]) -> Result<Vec<DynamicImage>, Te
 
     // TODO: Move to another function `load_from_files`.
     for &image_file in files {
-        let image_data = ImageReader::open(image_file.name)?;
+        let image_data = ImageReader::open(&image_file.name)?;
         let image_data = image_data.decode()?;
         let image_data = image_data.flipv();
         images.push(image_data);

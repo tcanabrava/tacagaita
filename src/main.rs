@@ -31,14 +31,8 @@ fn main() -> Result<(), anyhow::Error> {
  //   let gl_program_2 = GLProgram::from_shaders(&[&triangle2_vert, &color_blue_frag])?;
 
     let image_data = Texture::from_files(&[
-        &TextureDescriptor{
-            name:"/data/Projects/tocagaita/src/textures/wall.jpg",
-            uniform: "texture_1",
-        },
-        &TextureDescriptor{
-            name:"/data/Projects/tocagaita/src/textures/tux.png",
-            uniform: "texture_2",
-        },
+        &TextureDescriptor::new("wall.jpg", "texture_1"),
+        &TextureDescriptor::new("tux.png", "texture_2"),
     ])?;
 
     /*
