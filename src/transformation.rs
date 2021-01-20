@@ -1,6 +1,6 @@
 use nalgebra::{Matrix4, Vector3};
 use nalgebra_glm as glm;
-use std::ffi::{CString};
+
 
 extern crate gl;
 
