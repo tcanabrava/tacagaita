@@ -8,7 +8,7 @@ use crate::textures::*;
 use crate::transformation::Transformation;
 use crate::transformation::radians;
 
-use std::ffi::{CString};
+
 
 pub struct Geometry {
     // vao id.
