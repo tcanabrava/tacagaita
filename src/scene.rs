@@ -1,6 +1,6 @@
 use crate::geometry::*;
 use crate::transformation::Transformation;
-use crate::gl_program::GLProgram;
+
 
 pub struct Scene {
     geometries: Vec<Geometry>,
