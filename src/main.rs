@@ -195,12 +195,12 @@ fn create_window(glfw: &mut glfw::Glfw) -> (glfw::Window, std::sync::mpsc::Recei
 }
 
 trait WindowEventHandler {
-    fn key_event(self: &mut Self, key: Key, scancode: i32, action: Action, modifiers: glfw::Modifiers);
-    fn resize_event(self: &mut Self, width: i32, height: i32);
+    fn key_event(&mut self, key: Key, scancode: i32, action: Action, modifiers: glfw::Modifiers);
+    fn resize_event(&mut self, width: i32, height: i32);
 }
 
 impl WindowEventHandler for glfw::Window{
-    fn key_event(self: &mut Self, key: Key, _scancode: i32, action: Action, _modifiers: glfw::Modifiers) {
+    fn key_event(&mut self, key: Key, _scancode: i32, action: Action, _modifiers: glfw::Modifiers) {
         match (key, action) {
             (Key::Escape, Action::Press) => {
                 println!("Closing Window");
@@ -216,7 +216,7 @@ impl WindowEventHandler for glfw::Window{
         }
     }
 
-    fn resize_event(self: &mut Self, width: i32, height: i32) {
+    fn resize_event(&mut self, width: i32, height: i32) {
         unsafe { gl::Viewport(0, 0, width, height) };
     }
 }
