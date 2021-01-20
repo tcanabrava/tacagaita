@@ -180,6 +180,7 @@ fn main() -> Result<(), anyhow::Error> {
 fn create_window(glfw: &mut glfw::Glfw) -> (glfw::Window, std::sync::mpsc::Receiver<(f64, glfw::WindowEvent)>){
     glfw.window_hint(glfw::WindowHint::ContextVersion(3,3));
     glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
+    glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
 
     let (mut window, events)
         = glfw.create_window(
