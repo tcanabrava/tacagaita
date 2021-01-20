@@ -1,7 +1,7 @@
 extern crate gl;
 
-use image::{GenericImageView, DynamicImage};
 use image::io::Reader as ImageReader;
+use image::{DynamicImage, GenericImageView};
 use itertools::izip;
 use thiserror::Error;
 
@@ -12,14 +12,14 @@ pub struct Texture {
 
 pub struct TextureDescriptor<'a> {
     pub name: String,
-    pub uniform: &'a str
+    pub uniform: &'a str,
 }
 
 impl<'a> TextureDescriptor<'a> {
     pub fn new(name: &str, uniform: &'a str) -> Self {
         return Self {
             name: format!("{}/src/textures/{}", env!("CARGO_MANIFEST_DIR"), name),
-            uniform
+            uniform,
         };
     }
 }
@@ -33,8 +33,9 @@ pub enum TextureError {
 }
 
 impl Texture {
-    pub fn from_files(image_descriptors: &[&TextureDescriptor]) -> Result<Vec<Texture>, TextureError> {
-
+    pub fn from_files(
+        image_descriptors: &[&TextureDescriptor],
+    ) -> Result<Vec<Texture>, TextureError> {
         let images = load_from_files(image_descriptors)?;
         let textures = upload_to_gl(&images, image_descriptors);
 
@@ -60,39 +61,56 @@ fn upload_to_gl(images: &[DynamicImage], descriptor: &[&TextureDescriptor]) -> V
             gl::BindTexture(gl::TEXTURE_2D, texture_id);
 
             // How the texture should behave when it ends
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as gl::types::GLint);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as gl::types::GLint);
+            gl::TexParameteri(
+                gl::TEXTURE_2D,
+                gl::TEXTURE_WRAP_S,
+                gl::REPEAT as gl::types::GLint,
+            );
+            gl::TexParameteri(
+                gl::TEXTURE_2D,
+                gl::TEXTURE_WRAP_T,
+                gl::REPEAT as gl::types::GLint,
+            );
 
             // Visualization Filters.
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR as gl::types::GLint);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as gl::types::GLint);
+            gl::TexParameteri(
+                gl::TEXTURE_2D,
+                gl::TEXTURE_MIN_FILTER,
+                gl::LINEAR as gl::types::GLint,
+            );
+            gl::TexParameteri(
+                gl::TEXTURE_2D,
+                gl::TEXTURE_MAG_FILTER,
+                gl::LINEAR as gl::types::GLint,
+            );
 
             // Load the texture in memory
             let (color_type, data_ptr) = match image.color() {
-                image::ColorType::Rgb8 => (gl::RGB, image.as_rgb8().unwrap().as_ptr() ),
-                image::ColorType::Rgba8 => (gl::RGBA, image.as_rgba8().unwrap().as_ptr() ),
-                 _ => {
-                     panic!("Tipo nao tratado: {:?}", image.color())
-                }
+                image::ColorType::Rgb8 => (gl::RGB, image.as_rgb8().unwrap().as_ptr()),
+                image::ColorType::Rgba8 => (gl::RGBA, image.as_rgba8().unwrap().as_ptr()),
+                _ => panic!("Tipo nao tratado: {:?}", image.color()),
             };
 
             gl::TexImage2D(
-                gl::TEXTURE_2D,     // Type of Texture
-                0,                  // Minimap Level
-                color_type as gl::types::GLint,            // Type of image to be stored
+                gl::TEXTURE_2D,                 // Type of Texture
+                0,                              // Minimap Level
+                color_type as gl::types::GLint, // Type of image to be stored
                 image.width() as gl::types::GLint,
                 image.height() as gl::types::GLint,
-                0,                  // Always zero. Legacy.
-                color_type,            // Type of image to be read
-                gl::UNSIGNED_BYTE,  // Type of values we are passing.
-                data_ptr as *const std::ffi::c_void
+                0,                 // Always zero. Legacy.
+                color_type,        // Type of image to be read
+                gl::UNSIGNED_BYTE, // Type of values we are passing.
+                data_ptr as *const std::ffi::c_void,
             );
 
             gl::GenerateMipmap(gl::TEXTURE_2D);
             gl::BindTexture(gl::TEXTURE_2D, 0);
         }
 
-        result_ids.push(Texture{id:texture_id, uniform: String::from(uniform_name.uniform)});
+        result_ids.push(Texture {
+            id: texture_id,
+            uniform: String::from(uniform_name.uniform),
+        });
     }
 
     return result_ids;

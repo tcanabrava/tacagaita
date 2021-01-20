@@ -1,7 +1,6 @@
 use crate::geometry::*;
 use crate::transformation::Transformation;
 
-
 pub struct Scene {
     geometries: Vec<Geometry>,
     projection_matrix: Transformation,
@@ -14,7 +13,7 @@ impl Scene {
             geometries: Vec::new(),
             projection_matrix: Transformation::new(),
             view_matrix: Transformation::new(),
-        }
+        };
     }
 
     pub fn projection(&mut self) -> &mut Transformation {
@@ -25,7 +24,7 @@ impl Scene {
         return &mut self.view_matrix;
     }
 
-    pub fn geometries(&mut self, ) -> &mut Vec<Geometry> {
+    pub fn geometries(&mut self) -> &mut Vec<Geometry> {
         return &mut self.geometries;
     }
 
@@ -41,5 +40,4 @@ impl Scene {
             element.draw();
         }
     }
-
 }
