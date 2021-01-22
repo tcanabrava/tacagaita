@@ -68,18 +68,14 @@ impl Geometry {
                     std::ptr::null(),
                 );
             } else {
-                // Hack to move some elements though the screen.
-                // TODO: understand lifetimes here.
-                let position_copy = self.positions.clone();
-                for position in position_copy {
+                for position in self.positions.iter() {
                     let angle: f32 = radians(20.0 * rand::thread_rng().gen::<f32>());
                     let axis = glm::vec3(1.0, 0.3, 0.5);
                     let mut model = nalgebra::Matrix4::identity();
 
                     model = glm::translate(&model, &position);
                     model = glm::rotate(&model, radians(angle), &axis);
-                    self.program_mut()
-                        .set_matrix("model", model.as_slice().as_ptr());
+                    self.program.set_matrix("model", model.as_slice().as_ptr());
 
                     gl::DrawElements(
                         gl::TRIANGLES,
