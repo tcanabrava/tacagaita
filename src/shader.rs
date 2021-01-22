@@ -1,7 +1,7 @@
-extern crate glfw;
 extern crate gl;
+extern crate glfw;
 
-use std::ffi::{CString};
+use std::ffi::CString;
 
 pub struct Shader {
     id: gl::types::GLuint,
@@ -25,7 +25,9 @@ impl Shader {
 
 impl Drop for Shader {
     fn drop(&mut self) {
-        unsafe { gl::DeleteShader(self.id); }
+        unsafe {
+            gl::DeleteShader(self.id);
+        }
     }
 }
 
@@ -39,22 +41,30 @@ fn from_src(source: &str, kind: gl::types::GLuint) -> Result<Shader, std::ffi::N
         check_compile_errors(id);
     }
 
-    return Ok(Shader{id});
+    return Ok(Shader { id });
 }
 
 fn check_compile_errors(shader_id: u32) {
     let mut check_error = 0;
-    unsafe { gl::GetShaderiv(shader_id, gl::COMPILE_STATUS, &mut check_error); }
+    unsafe {
+        gl::GetShaderiv(shader_id, gl::COMPILE_STATUS, &mut check_error);
+    }
 
     if check_error == 0 {
         println!("Compilation error");
         let mut error_length: i32 = 0;
-        unsafe { gl::GetShaderiv(shader_id, gl::INFO_LOG_LENGTH, &mut error_length); }
+        unsafe {
+            gl::GetShaderiv(shader_id, gl::INFO_LOG_LENGTH, &mut error_length);
+        }
         let error_string = c_str_with_size(error_length as usize);
 
         unsafe {
-            gl::GetShaderInfoLog(shader_id, error_length, std::ptr::null_mut(),
-                error_string.as_ptr() as *mut gl::types::GLchar);
+            gl::GetShaderInfoLog(
+                shader_id,
+                error_length,
+                std::ptr::null_mut(),
+                error_string.as_ptr() as *mut gl::types::GLchar,
+            );
         }
 
         println!("{:?}", error_string);
