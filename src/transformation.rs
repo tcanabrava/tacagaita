@@ -18,7 +18,7 @@ impl Transformation {
         self.transformations.append_scaling_mut(scale_factor)
     }
 
-    pub fn translade(&mut self, x: f32, y: f32, z: f32) {
+    pub fn translate(&mut self, x: f32, y: f32, z: f32) {
         self.transformations
             .append_translation_mut(&Vector3::new(x, y, z))
     }
@@ -37,7 +37,7 @@ impl Transformation {
         self.transformations = self.transformations * rot;
     }
 
-    pub fn perspactive(&mut self, aspect: f32, fovy: f32, znear: f32, zfar: f32) {
+    pub fn perspective(&mut self, aspect: f32, fovy: f32, znear: f32, zfar: f32) {
         self.transformations = glm::perspective(radians(aspect), fovy, znear, zfar);
     }
 
