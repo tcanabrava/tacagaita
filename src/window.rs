@@ -8,7 +8,6 @@ pub struct Window {
     glfw: glfw::Glfw,
     inner_window: glfw::Window,
     events: Receiver<(f64, glfw::WindowEvent)>,
-    scene: Option<Scene>,
 }
 
 impl Window {
@@ -36,7 +35,6 @@ impl Window {
             glfw: glfw,
             inner_window: window,
             events: events,
-            scene: None,
         };
     }
 
