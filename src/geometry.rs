@@ -15,6 +15,8 @@ pub struct Geometry {
     textures: Vec<Texture>,
     idx_size: gl::types::GLint,
     matrix: Transformation,
+
+    // We are using many copies of this element, each one on this specified position.
     positions: Vec<nalgebra::Vector3<f32>>,
 }
 
