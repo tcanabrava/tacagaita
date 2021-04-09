@@ -4,53 +4,64 @@ use crate::scene::Scene;
 use std::sync::mpsc::Receiver;
 use glfw::{Action, Context, Key};
 
-pub fn event_loop(glfw: &mut glfw::Glfw, window: &mut glfw::Window, events: &Receiver<(f64, glfw::WindowEvent)>, scene: &mut Scene) {
-    let (width, height) = window.get_framebuffer_size();
-    unsafe {
-        gl::Enable(gl::DEPTH_TEST);
-        gl::Viewport(0, 0, width, height);
-        gl::ClearColor(0.1, 0.3, 0.3, 1.0);
-    }
-
-    while !window.should_close() {
-        glfw.poll_events();
-        for (_, event) in glfw::flush_messages(&events) {
-            handle_window_event(window, event);
-        }
-
-        unsafe {
-            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
-        }
-
-        scene.render();
-        window.swap_buffers();
-    }
+pub struct Window {
+    glfw: glfw::Glfw,
+    inner_window: glfw::Window,
+    events: Receiver<(f64, glfw::WindowEvent)>,
+    scene: Option<Scene>,
 }
 
-pub fn create_window(
-    glfw: &mut glfw::Glfw,
-) -> (
-    glfw::Window,
-    std::sync::mpsc::Receiver<(f64, glfw::WindowEvent)>,
-) {
-    glfw.window_hint(glfw::WindowHint::ContextVersion(3, 3));
-    glfw.window_hint(glfw::WindowHint::OpenGlProfile(
-        glfw::OpenGlProfileHint::Core,
-    ));
-    glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
+impl Window {
+    pub fn new () -> Window {
+        let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (mut window, events) = glfw
-        .create_window(800, 600, "Hello this is window", glfw::WindowMode::Windowed)
-        .expect("Failed to create GLFW window.");
+        glfw.window_hint(glfw::WindowHint::ContextVersion(3, 3));
+        glfw.window_hint(glfw::WindowHint::OpenGlProfile(
+            glfw::OpenGlProfileHint::Core,
+        ));
+        glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
 
-    gl::load_with(|symbol| window.get_proc_address(symbol) as *const _);
+        let (mut window, events) = glfw
+            .create_window(800, 600, "Hello this is window", glfw::WindowMode::Windowed)
+            .expect("Failed to create GLFW window.");
 
-    window.set_title("Hello this is window");
-    window.set_key_polling(true);
-    window.set_framebuffer_size_polling(true);
-    window.make_current();
+        gl::load_with(|symbol| window.get_proc_address(symbol) as *const _);
 
-    return (window, events);
+        window.set_title("Hello this is window");
+        window.set_key_polling(true);
+        window.set_framebuffer_size_polling(true);
+        window.make_current();
+
+        return Window {
+            glfw: glfw,
+            inner_window: window,
+            events: events,
+            scene: None,
+        };
+    }
+
+    pub fn event_loop(&mut self, scene: &mut Scene) {
+        let (width, height) = self.inner_window.get_framebuffer_size();
+        unsafe {
+            gl::Enable(gl::DEPTH_TEST);
+            gl::Viewport(0, 0, width, height);
+            gl::ClearColor(0.1, 0.3, 0.3, 1.0);
+        }
+
+        while !self.inner_window.should_close() {
+            self.glfw.poll_events();
+            for (_, event) in glfw::flush_messages(&self.events) {
+                handle_window_event(&mut self.inner_window, event);
+            }
+
+            unsafe {
+                gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
+            }
+
+            scene.render();
+            self.inner_window.swap_buffers();
+        }
+    }
 }
 
 trait WindowEventHandler {
