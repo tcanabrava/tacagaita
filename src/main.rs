@@ -156,6 +156,7 @@ fn main() -> Result<(), anyhow::Error> {
 
     let (width, height) = window.get_framebuffer_size();
     unsafe {
+        gl::Enable(gl::DEPTH_TEST);
         gl::Viewport(0, 0, width, height);
         gl::ClearColor(0.1, 0.3, 0.3, 1.0);
     }
@@ -167,7 +168,7 @@ fn main() -> Result<(), anyhow::Error> {
         }
 
         unsafe {
-            gl::Clear(gl::COLOR_BUFFER_BIT);
+            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
 
         scene.render();
