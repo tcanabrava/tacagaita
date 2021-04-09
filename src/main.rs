@@ -13,6 +13,7 @@ mod textures;
 mod transformation;
 mod window;
 
+use transformation::*;
 use geometry::*;
 use gl_program::GLProgram;
 use scene::Scene;
@@ -143,6 +144,11 @@ fn main() -> Result<(), anyhow::Error> {
 
     //    let triangle_matrix = triangle_1.matrix_mut();
     //    triangle_matrix.rotate(Angle::X(-55.0));
+
+    cube_1.set_render_func(|transformation: &mut Transformation| {
+        transformation.rotate(transformation::Angle::X(0.1));
+        transformation.rotate(transformation::Angle::Y(1.0));
+    });
 
     let mut scene = Scene::new();
     scene.geometries().push(cube_1);

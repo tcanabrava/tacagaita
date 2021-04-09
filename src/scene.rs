@@ -1,14 +1,14 @@
 use crate::geometry::*;
 use crate::transformation::Transformation;
 
-pub struct Scene {
-    geometries: Vec<Geometry>,
+pub struct Scene<'a> {
+    geometries: Vec<Geometry<'a>>,
     projection_matrix: Transformation,
     view_matrix: Transformation,
 }
 
-impl Scene {
-    pub fn new() -> Scene {
+impl<'a> Scene<'a> {
+    pub fn new() -> Scene<'a> {
         return Scene {
             geometries: Vec::new(),
             projection_matrix: Transformation::new(),
@@ -24,7 +24,7 @@ impl Scene {
         return &mut self.view_matrix;
     }
 
-    pub fn geometries(&mut self) -> &mut Vec<Geometry> {
+    pub fn geometries(&mut self) -> &mut Vec<Geometry<'a>> {
         return &mut self.geometries;
     }
 

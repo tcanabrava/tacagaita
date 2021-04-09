@@ -1,13 +1,14 @@
 extern crate gl;
 use itertools::izip;
 use rand::Rng;
+use std::boxed::Box;
 
 use crate::gl_program::GLProgram;
 use crate::textures::*;
 use crate::transformation::radians;
 use crate::transformation::Transformation;
 
-pub struct Geometry {
+pub struct Geometry<'a> {
     // vao id.
     vao: gl::types::GLuint,
     // shader program id.
@@ -18,9 +19,10 @@ pub struct Geometry {
 
     // We are using many copies of this element, each one on this specified position.
     positions: Vec<nalgebra::Vector3<f32>>,
+    timer_func: Option<Box<dyn FnMut(&mut Transformation) -> () + 'a>>
 }
 
-impl Geometry {
+impl<'a> Geometry<'a> {
     pub fn vao(&self) -> gl::types::GLuint {
         return self.vao;
     }
@@ -50,6 +52,13 @@ impl Geometry {
         self.program_mut().set_matrix("model", ptr);
     }
 
+    pub fn set_render_func<Func> (&mut self, callback: Func)
+        where
+        Func: 'a,
+        Func: FnMut(&mut Transformation) -> () {
+        self.timer_func = Some(Box::new(callback));
+    }
+
     pub fn draw(&mut self) {
         // Activate loads the uniforms, so we need to set the uniform before activating the program.
         self.program().activate();
@@ -62,6 +71,10 @@ impl Geometry {
             }
 
             gl::BindVertexArray(self.vao());
+            if let Some(timer_func) = &mut self.timer_func {
+                timer_func(&mut self.matrix);
+            }
+
             if self.positions.is_empty() {
                 gl::DrawElements(
                     gl::TRIANGLES,
@@ -98,7 +111,7 @@ impl Geometry {
         textures: Vec<Texture>,
         data_size: i32,
         offsets: &[(i32, usize)],
-    ) -> Geometry {
+    ) -> Geometry<'a> {
         let mut vbo: gl::types::GLuint = 0;
         let mut vao: gl::types::GLuint = 0;
         let mut ebo: gl::types::GLuint = 0;
@@ -154,6 +167,7 @@ impl Geometry {
             idx_size: indexes.len() as gl::types::GLint,
             matrix: Transformation::new(),
             positions: Vec::new(),
+            timer_func: None,
         };
     }
 }
