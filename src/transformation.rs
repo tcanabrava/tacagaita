@@ -37,7 +37,7 @@ impl Transformation {
         self.transformations = self.transformations * rot;
     }
 
-    pub fn perspactive(&mut self, aspect: f32, fovy: f32, znear: f32, zfar: f32) {
+    pub fn perspective(&mut self, aspect: f32, fovy: f32, znear: f32, zfar: f32) {
         self.transformations = glm::perspective(radians(aspect), fovy, znear, zfar);
     }
 

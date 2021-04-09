@@ -152,7 +152,7 @@ fn main() -> Result<(), anyhow::Error> {
     scene.view().translade(0.0, 0.0, -3.0);
     scene
         .projection()
-        .perspactive(45.0, 800.0 / 600.0, 0.1, 100.0);
+        .perspective(45.0, 800.0 / 600.0, 0.1, 100.0);
 
     let (width, height) = window.get_framebuffer_size();
     unsafe {
