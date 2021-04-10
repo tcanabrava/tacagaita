@@ -3,11 +3,8 @@ use nalgebra_glm as glm;
 
 extern crate gl;
 
-pub enum Angle {
-    X(f32),
-    Y(f32),
-    Z(f32),
-}
+pub type Angle = Vector3<f32>;
+
 pub struct Transformation {
     transformations: Matrix4<f32>,
 }
@@ -28,11 +25,7 @@ impl Transformation {
     }
 
     pub fn rotate(&mut self, angle: Angle) {
-        let rot = match angle {
-            Angle::X(angle) => Matrix4::from_scaled_axis(&Vector3::x() * radians(angle)),
-            Angle::Y(angle) => Matrix4::from_scaled_axis(&Vector3::y() * radians(angle)),
-            Angle::Z(angle) => Matrix4::from_scaled_axis(&Vector3::z() * radians(angle)),
-        };
+        let rot = Matrix4::from_scaled_axis(radians(angle));
 
         self.transformations = self.transformations * rot;
     }

@@ -138,8 +138,8 @@ fn main() -> Result<(), anyhow::Error> {
     //    triangle_matrix.rotate(Angle::X(-55.0));
 
     cube_1.set_render_func(|transformation: &mut Transformation| {
-        transformation.rotate(transformation::Angle::X(0.1));
-        transformation.rotate(transformation::Angle::Y(1.0));
+        transformation.rotate(Angle::x_axis().scale(0.1));
+        transformation.rotate(Angle::y_axis().scale(1.0));
     });
 
     let mut scene = Scene::new();
