@@ -54,7 +54,10 @@ impl Transformation {
     pub fn set_uniform(&self) {}
 }
 
-pub fn radians(degrees: f32) -> f32 {
+pub fn radians<T>(degrees: T) -> T
+where
+    T: std::ops::Mul<f32, Output = T>
+{
     const FRAC: f32 = std::f32::consts::PI / 180.0;
     return degrees * FRAC;
 }
