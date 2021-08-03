@@ -27,11 +27,14 @@ impl Camera {
 
     // TODO: new trait `EventHandler`.
     pub fn key_event(&mut self, key: glfw::Key, _scancode: i32, action: glfw::Action, _modifiers: glfw::Modifiers) -> bool {
+        use glfw::Action::Press;
+        use glfw::Key;
+
         let result = match (key, action) {
-            (glfw::Key::W, glfw::Action::Press) => { self.pos += self.speed * self.front; true}
-            (glfw::Key::S, glfw::Action::Press) => { self.pos -= self.speed * self.front; true}
-            (glfw::Key::A, glfw::Action::Press) => { self.pos -= glm::normalize(&glm::cross(&self.front, &self.up)) * self.speed; true}
-            (glfw::Key::D, glfw::Action::Press) => { self.pos += glm::normalize(&glm::cross(&self.front, &self.up)) * self.speed; true}
+            (Key::W, Press) => { self.pos += self.speed * self.front; true}
+            (Key::S, Press) => { self.pos -= self.speed * self.front; true}
+            (Key::A, Press) => { self.pos -= glm::normalize(&glm::cross(&self.front, &self.up)) * self.speed; true}
+            (Key::D, Press) => { self.pos += glm::normalize(&glm::cross(&self.front, &self.up)) * self.speed; true}
             _ => { false }
         };
 
