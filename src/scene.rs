@@ -47,4 +47,11 @@ impl<'a> Scene<'a> {
         return used;
     }
 
+    pub fn mouse_press_event(&mut self, mouseButton: glfw::MouseButton, action: glfw::Action, modifier: glfw::Modifiers) -> bool {
+        false
+    }
+
+    pub fn mouse_move_event(&mut self, x: f64, y: f64) -> bool {
+        false
+    }
 }

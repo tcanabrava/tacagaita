@@ -106,6 +106,16 @@ fn handle_window_event(window: &mut glfw::Window, scene: &mut Scene, event: glfw
         glfw::WindowEvent::FramebufferSize(width, height) => {
             unsafe { gl::Viewport(0, 0, width, height) };
         }
+        glfw::WindowEvent::MouseButton(mouseButton, action, modifier) => {
+            if scene.mouse_press_event(mouseButton, action, modifier){
+                return;
+            }
+        }
+        glfw::WindowEvent::CursorPos(x, y) => {
+            if scene.mouse_move_event(x, y) {
+                return;
+            }
+        }
         _ => {}
     }
 }
