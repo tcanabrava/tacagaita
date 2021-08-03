@@ -12,6 +12,7 @@ mod shader;
 mod textures;
 mod transformation;
 mod window;
+mod camera;
 
 use transformation::*;
 use geometry::*;
@@ -19,6 +20,7 @@ use gl_program::GLProgram;
 use scene::Scene;
 use shader::*;
 use textures::*;
+use camera::Camera;
 
 fn main() -> Result<(), anyhow::Error> {
     let mut window = window::Window::new();
@@ -150,11 +152,11 @@ fn main() -> Result<(), anyhow::Error> {
         transformation.rotate(transformation::Angle::Y(1.0));
     });
 
+    let mut camera = Camera::new();
     let mut scene = Scene::new();
     scene.geometries().push(cube_1);
     //    scene.geometries().push(triangle_2);
 
-    scene.view().translade(0.0, 0.0, -3.0);
     scene
         .projection()
         .perspective(45.0, 800.0 / 600.0, 0.1, 100.0);

@@ -11,14 +11,18 @@ use crate::transformation::Transformation;
 pub struct Geometry<'a> {
     // vao id.
     vao: gl::types::GLuint,
+
     // shader program id.
     program: GLProgram,
+
     textures: Vec<Texture>,
     idx_size: gl::types::GLint,
     matrix: Transformation,
 
     // We are using many copies of this element, each one on this specified position.
     positions: Vec<nalgebra::Vector3<f32>>,
+
+    // a lambda that we call from time to time.
     timer_func: Option<Box<dyn FnMut(&mut Transformation) -> () + 'a>>
 }
 
@@ -56,7 +60,7 @@ impl<'a> Geometry<'a> {
         where
         Func: 'a,
         Func: FnMut(&mut Transformation) -> () {
-        self.timer_func = Some(Box::new(callback));
+            self.timer_func = Some(Box::new(callback));
     }
 
     pub fn draw(&mut self) {
