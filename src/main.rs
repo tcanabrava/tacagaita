@@ -20,7 +20,6 @@ use gl_program::GLProgram;
 use scene::Scene;
 use shader::*;
 use textures::*;
-use camera::Camera;
 
 fn main() -> Result<(), anyhow::Error> {
     let mut window = window::Window::new();
@@ -152,7 +151,6 @@ fn main() -> Result<(), anyhow::Error> {
         transformation.rotate(transformation::Angle::Y(1.0));
     });
 
-    let mut camera = Camera::new();
     let mut scene = Scene::new();
     scene.geometries().push(cube_1);
     //    scene.geometries().push(triangle_2);

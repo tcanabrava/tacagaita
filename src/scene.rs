@@ -21,7 +21,7 @@ impl<'a> Scene<'a> {
         return &mut self.projection_matrix;
     }
 
-    pub fn camera(&mut self) -> &mut Camera {
+    pub fn _camera(&mut self) -> &mut Camera {
         return &mut self.camera;
     }
 
