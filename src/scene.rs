@@ -1,4 +1,4 @@
-use crate::geometry::*;
+use crate::{camera, geometry::*};
 use crate::transformation::Transformation;
 use crate::camera::Camera;
 
@@ -41,4 +41,10 @@ impl<'a> Scene<'a> {
             element.draw();
         }
     }
+
+    pub fn key_event(&mut self, key: glfw::Key, _scancode: i32, action: glfw::Action, _modifiers: glfw::Modifiers) -> bool {
+        let used = self.camera.key_event(key, _scancode, action, _modifiers);
+        return used;
+    }
+
 }

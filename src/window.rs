@@ -49,7 +49,7 @@ impl Window {
         while !self.inner_window.should_close() {
             self.glfw.poll_events();
             for (_, event) in glfw::flush_messages(&self.events) {
-                handle_window_event(&mut self.inner_window, event);
+                handle_window_event(&mut self.inner_window, scene, event);
             }
 
             unsafe {
@@ -71,13 +71,12 @@ impl WindowEventHandler for glfw::Window {
     fn key_event(&mut self, key: Key, _scancode: i32, action: Action, _modifiers: glfw::Modifiers) {
         match (key, action) {
             (Key::Escape, Action::Press) => {
-                println!("Closing Window");
                 self.set_should_close(true);
             }
-            (Key::W, Action::Press) => unsafe {
+            (Key::O, Action::Press) => unsafe {
                 gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
             },
-            (Key::S, Action::Press) => unsafe {
+            (Key::P, Action::Press) => unsafe {
                 gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
             },
             _ => {}
@@ -89,10 +88,13 @@ impl WindowEventHandler for glfw::Window {
     }
 }
 
-fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
+fn handle_window_event(window: &mut glfw::Window, scene: &mut Scene, event: glfw::WindowEvent) {
     // println!("Window event received {:?}", event);
     match event {
         glfw::WindowEvent::Key(key, scancode, action, modifiers) => {
+            if scene.key_event(key, scancode, action, modifiers) {
+                return;
+            }
             window.key_event(key, scancode, action, modifiers)
         }
         glfw::WindowEvent::Close => {

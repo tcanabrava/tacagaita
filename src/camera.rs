@@ -19,23 +19,22 @@ impl Camera {
         }
     }
 
-    /* handles keypress. currently it's not handling anything. */
-    pub fn handleKeypress(&mut self, key_press: i32) {
-        match key_press {
-            1 => self.pos += self.speed * self.front,
-            2 => self.pos -= self.speed * self.front,
-            3 => self.pos -= glm::normalize(&glm::cross(&self.front, &self.up)) * self.speed,
-            4 => self.pos += glm::normalize(&glm::cross(&self.front, &self.up)) * self.speed,
-            _ => println!("Oi Mundo")
-        }
-    }
-
     pub fn view(&self) -> glm::Mat4 {
         let center = self.pos.component_mul(&self.front);
         let our_view = glm::look_at(&self.pos, &center ,&self.up);
-
-        println!("Center: {:#?} ", center);
-        println!("view: {:#?} ", our_view);
         return our_view;
+    }
+
+    // TODO: new trait `EventHandler`.
+    pub fn key_event(&mut self, key: glfw::Key, _scancode: i32, action: glfw::Action, _modifiers: glfw::Modifiers) -> bool {
+        let result = match (key, action) {
+            (glfw::Key::W, glfw::Action::Press) => { self.pos += self.speed * self.front; true}
+            (glfw::Key::S, glfw::Action::Press) => { self.pos -= self.speed * self.front; true}
+            (glfw::Key::A, glfw::Action::Press) => { self.pos -= glm::normalize(&glm::cross(&self.front, &self.up)) * self.speed; true}
+            (glfw::Key::D, glfw::Action::Press) => { self.pos += glm::normalize(&glm::cross(&self.front, &self.up)) * self.speed; true}
+            _ => { false }
+        };
+
+        return result;
     }
 }
