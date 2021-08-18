@@ -189,6 +189,7 @@ impl<'a> Geometry<'a> {
         let right: f32 = (width / 2.0) * 0.01;
         let left: f32 = - right;
 
+        #[rustfmt::skip]
         let data: Vec<f32> = vec![
             // vertices     |// Colors      // Texture
             top,    right, 0.0,  1.0, 0.0, 0.0,  1.0, 1.0, // top right     // 0
@@ -211,5 +212,98 @@ impl<'a> Geometry<'a> {
             &[(3,0), (3,3), (2,6)]);
 
         return Ok(triangle_1);
+    }
+
+    pub fn cube(width: f32, height: f32, depth: f32, frag: &'a str, vert: &'a str) -> anyhow::Result<Geometry<'a>> {
+        let frag_shader = Shader::from_fragment_src(frag)?;
+        let vertex_shader = Shader::from_vertex_src(vert)?;
+
+        let gl_program_1 = GLProgram::from_shaders(&[&frag_shader, &vertex_shader])?;
+
+        let top: f32 = (height / 2.0) * 0.01;
+        let bottom: f32 = -top;
+        let right: f32 = (width / 2.0) * 0.01;
+        let left: f32 = - right;
+        let front: f32 = (depth / 2.0) * 0.01;
+        let back: f32 = -front;
+
+        #[rustfmt::skip]
+        let cube: Vec<f32> = vec![
+            // vertices       |// Colors     // Texture
+            // Back
+            -0.5, -0.5, back, 0.0, 0.0, 0.0, 0.0, 0.0,
+             0.5, -0.5, back, 0.0, 0.0, 0.0, 1.0, 0.0,
+             0.5,  0.5, back, 0.0, 0.0, 0.0, 1.0, 1.0,
+             0.5,  0.5, back, 0.0, 0.0, 0.0, 1.0, 1.0,
+            -0.5,  0.5, back, 0.0, 0.0, 0.0, 0.0, 1.0,
+            -0.5, -0.5, back, 0.0, 0.0, 0.0, 0.0, 0.0,
+
+            // Face
+            -0.5, -0.5,  front, 0.0, 0.0, 0.0, 0.0, 0.0,
+             0.5, -0.5,  front, 0.0, 0.0, 0.0, 1.0, 0.0,
+             0.5,  0.5,  front, 0.0, 0.0, 0.0, 1.0, 1.0,
+             0.5,  0.5,  front, 0.0, 0.0, 0.0, 1.0, 1.0,
+            -0.5,  0.5,  front, 0.0, 0.0, 0.0, 0.0, 1.0,
+            -0.5, -0.5,  front, 0.0, 0.0, 0.0, 0.0, 0.0,
+
+            // Lateral Left
+            left,  0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+            left,  0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 1.0,
+            left, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+            left, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+            left, -0.5,  0.5, 0.0, 0.0, 0.0, 0.0, 0.0,
+            left,  0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+
+            // Lateral Right
+             right,  0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+             right,  0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 1.0,
+             right, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+             right, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+             right, -0.5,  0.5, 0.0, 0.0, 0.0, 0.0, 0.0,
+             right,  0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+
+             // Floor
+            -0.5, bottom, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+             0.5, bottom, -0.5, 0.0, 0.0, 0.0, 1.0, 1.0,
+             0.5, bottom,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+             0.5, bottom,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+            -0.5, bottom,  0.5, 0.0, 0.0, 0.0, 0.0, 0.0,
+            -0.5, bottom, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+
+            // Ceiling
+            -0.5,  top, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
+             0.5,  top, -0.5, 0.0, 0.0, 0.0, 1.0, 1.0,
+             0.5,  top,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+             0.5,  top,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+            -0.5,  top,  0.5, 0.0, 0.0, 0.0, 0.0, 0.0,
+            -0.5,  top, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0
+        ];
+
+        #[rustfmt::skip]
+        let cube_indexes: Vec<i32> = vec![
+             0,  1,  2,  3,  4,  5,
+             6,  7,  8,  9, 10, 11,
+            12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23,
+            24, 25, 26, 27, 28, 29,
+            30, 31, 32, 33, 34, 35,
+        ];
+
+        // TODO: set the textures dinamically, and not initially, if possible.
+        let image_data = Texture::from_files(&[
+            &TextureDescriptor::new("wall.jpg", "texture_1"),
+            &TextureDescriptor::new("tux.png", "texture_2"),
+        ])?;
+
+        let cube_1 = Geometry::from_data(
+            &cube,
+            &cube_indexes,
+            gl_program_1,
+            image_data,
+            8,
+            &[(3, 0), (3, 3), (2, 6)],
+        );
+
+        return Ok(cube_1);
     }
 }
