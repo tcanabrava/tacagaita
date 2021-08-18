@@ -7,6 +7,7 @@ use crate::gl_program::GLProgram;
 use crate::textures::*;
 use crate::transformation::radians;
 use crate::transformation::Transformation;
+use crate::Shader;
 
 pub struct Geometry<'a> {
     // vao id.
@@ -173,5 +174,42 @@ impl<'a> Geometry<'a> {
             positions: Vec::new(),
             timer_func: None,
         };
+    }
+
+    pub fn rectangle(width: f32, height: f32, frag: &'a str, vert: &'a str) -> anyhow::Result<Geometry<'a>> {
+
+        let triangle_frag = Shader::from_fragment_src(frag)?;
+        let triangle_vert = Shader::from_vertex_src(vert)?;
+
+        let gl_program_1 = GLProgram::from_shaders(&[&triangle_vert, &triangle_frag])?;
+
+        // Create something to handle the coordinate conversions.
+        let top: f32 = (height / 2.0) * 0.01;
+        let bottom: f32 = -top;
+        let right: f32 = (width / 2.0) * 0.01;
+        let left: f32 = - right;
+
+        let data: Vec<f32> = vec![
+            // vertices     |// Colors      // Texture
+            top,    right, 0.0,  1.0, 0.0, 0.0,  1.0, 1.0, // top right     // 0
+            bottom, right, 0.0,  0.0, 1.0, 0.0,  1.0, 0.0, // bottom right  // 1
+            bottom, left,  0.0,  1.0, 0.0, 0.0,  0.0, 0.0, // bottom left   // 2
+            top,    left,  0.0,  0.0, 0.0, 1.0,  0.0, 1.0, // top left      // 3
+        ];
+
+        let indexes_1: Vec<i32> = vec![
+            0, 1, 3,
+            1, 2, 3
+        ];
+
+        let triangle_1 = Geometry::from_data(
+            &data,
+            &indexes_1,
+            gl_program_1,
+            Vec::new(),
+            8,
+            &[(3,0), (3,3), (2,6)]);
+
+        return Ok(triangle_1);
     }
 }
