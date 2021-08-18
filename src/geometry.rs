@@ -24,7 +24,7 @@ pub struct Geometry<'a> {
     positions: Vec<nalgebra::Vector3<f32>>,
 
     // a lambda that we call from time to time.
-    timer_func: Option<Box<dyn FnMut(&mut Transformation) -> () + 'a>>
+    timer_func: Option<Box<dyn FnMut(&mut Transformation) -> () + 'a>>,
 }
 
 impl<'a> Geometry<'a> {
@@ -57,11 +57,12 @@ impl<'a> Geometry<'a> {
         self.program_mut().set_matrix("model", ptr);
     }
 
-    pub fn set_render_func<Func> (&mut self, callback: Func)
-        where
+    pub fn set_render_func<Func>(&mut self, callback: Func)
+    where
         Func: 'a,
-        Func: FnMut(&mut Transformation) -> () {
-            self.timer_func = Some(Box::new(callback));
+        Func: FnMut(&mut Transformation) -> (),
+    {
+        self.timer_func = Some(Box::new(callback));
     }
 
     pub fn draw(&mut self) {
@@ -150,6 +151,7 @@ impl<'a> Geometry<'a> {
 
             let mut idx = 0;
             for (size, offset) in offsets {
+                #[cfg(debug_assertions)]
                 println!("Adding attrib pointer {:?}, dblock: {:?}", idx, offset);
                 gl::EnableVertexAttribArray(idx);
                 gl::VertexAttribPointer(
@@ -176,8 +178,12 @@ impl<'a> Geometry<'a> {
         };
     }
 
-    pub fn rectangle(width: f32, height: f32, frag: &'a str, vert: &'a str) -> anyhow::Result<Geometry<'a>> {
-
+    pub fn rectangle(
+        width: f32,
+        height: f32,
+        frag: &'a str,
+        vert: &'a str,
+    ) -> anyhow::Result<Geometry<'a>> {
         let triangle_frag = Shader::from_fragment_src(frag)?;
         let triangle_vert = Shader::from_vertex_src(vert)?;
 
@@ -187,7 +193,7 @@ impl<'a> Geometry<'a> {
         let top: f32 = (height / 2.0) * 0.01;
         let bottom: f32 = -top;
         let right: f32 = (width / 2.0) * 0.01;
-        let left: f32 = - right;
+        let left: f32 = -right;
 
         #[rustfmt::skip]
         let data: Vec<f32> = vec![
@@ -198,10 +204,7 @@ impl<'a> Geometry<'a> {
             top,    left,  0.0,  0.0, 0.0, 1.0,  0.0, 1.0, // top left      // 3
         ];
 
-        let indexes_1: Vec<i32> = vec![
-            0, 1, 3,
-            1, 2, 3
-        ];
+        let indexes_1: Vec<i32> = vec![0, 1, 3, 1, 2, 3];
 
         let triangle_1 = Geometry::from_data(
             &data,
@@ -209,12 +212,19 @@ impl<'a> Geometry<'a> {
             gl_program_1,
             Vec::new(),
             8,
-            &[(3,0), (3,3), (2,6)]);
+            &[(3, 0), (3, 3), (2, 6)],
+        );
 
         return Ok(triangle_1);
     }
 
-    pub fn cube(width: f32, height: f32, depth: f32, frag: &'a str, vert: &'a str) -> anyhow::Result<Geometry<'a>> {
+    pub fn cube(
+        width: f32,
+        height: f32,
+        depth: f32,
+        frag: &'a str,
+        vert: &'a str,
+    ) -> anyhow::Result<Geometry<'a>> {
         let frag_shader = Shader::from_fragment_src(frag)?;
         let vertex_shader = Shader::from_vertex_src(vert)?;
 
@@ -223,7 +233,7 @@ impl<'a> Geometry<'a> {
         let top: f32 = (height / 2.0) * 0.01;
         let bottom: f32 = -top;
         let right: f32 = (width / 2.0) * 0.01;
-        let left: f32 = - right;
+        let left: f32 = -right;
         let front: f32 = (depth / 2.0) * 0.01;
         let back: f32 = -front;
 

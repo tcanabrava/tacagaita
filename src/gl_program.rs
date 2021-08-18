@@ -52,6 +52,7 @@ impl GLProgram {
             gl::GetProgramiv(self.id, gl::ACTIVE_UNIFORMS, &mut count);
         }
 
+        #[cfg(debug_assertions)]
         println!(
             "Active Uniforms for program with id:{0}: {1:?}",
             self.id, count
@@ -75,8 +76,10 @@ impl GLProgram {
                     name.as_ptr() as *mut gl::types::GLchar,
                 );
             }
+            #[cfg(debug_assertions)]
             println!("Uniform {0} Type: {1} Name: {2:?}\n", i, uniform_type, name);
         }
+        #[cfg(debug_assertions)]
         println!("Finished printing the uniforms");
     }
 
@@ -104,14 +107,18 @@ impl GLProgram {
     pub fn get_location(&self, var: &CString) -> Result<gl::types::GLint, String> {
         let var_location = unsafe { gl::GetUniformLocation(self.id, var.as_ptr()) };
         if var_location == -1 {
-            println!("Error setting variable {:?}, not found in program.", var);
-            return Err(String::new());
+            return Err(format!(
+                "Error setting variable {:?}, not found in program.",
+                var
+            ));
         }
         return Ok(var_location);
     }
 
     pub fn from_shaders(shaders: &[&Shader]) -> Result<GLProgram, std::io::Error> {
         let shader_program_id: u32 = unsafe { gl::CreateProgram() };
+
+        #[cfg(debug_assertions)]
         println!("Creating shader program with id: {0}", shader_program_id);
 
         for shader in shaders {

@@ -1,8 +1,7 @@
-
 use crate::scene::Scene;
 
-use std::sync::mpsc::Receiver;
 use glfw::{Action, Context, Key};
+use std::sync::mpsc::Receiver;
 
 pub struct Window {
     glfw: glfw::Glfw,
@@ -11,7 +10,7 @@ pub struct Window {
 }
 
 impl Window {
-    pub fn new () -> Window {
+    pub fn new() -> Window {
         let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
         glfw.window_hint(glfw::WindowHint::ContextVersion(3, 3));
@@ -107,7 +106,7 @@ fn handle_window_event(window: &mut glfw::Window, scene: &mut Scene, event: glfw
             unsafe { gl::Viewport(0, 0, width, height) };
         }
         glfw::WindowEvent::MouseButton(mouseButton, action, modifier) => {
-            if scene.mouse_press_event(mouseButton, action, modifier){
+            if scene.mouse_press_event(mouseButton, action, modifier) {
                 return;
             }
         }

@@ -3,7 +3,7 @@ extern crate glfw;
 extern crate image;
 extern crate nalgebra_glm as glm;
 
-
+mod camera;
 mod geometry;
 mod gl_program;
 mod helpers;
@@ -12,14 +12,13 @@ mod shader;
 mod textures;
 mod transformation;
 mod window;
-mod camera;
 
-use transformation::*;
 use geometry::*;
 use gl_program::GLProgram;
 use scene::Scene;
 use shader::*;
 use textures::*;
+use transformation::*;
 
 fn main() -> Result<(), anyhow::Error> {
     let mut window = window::Window::new();
@@ -32,7 +31,7 @@ fn main() -> Result<(), anyhow::Error> {
         100.0,
         100.0,
         include_str!("shaders/main_triangle.frag"),
-        include_str!("shaders/main_triangle.vert")
+        include_str!("shaders/main_triangle.vert"),
     )?;
 
     let mut scene = Scene::new();

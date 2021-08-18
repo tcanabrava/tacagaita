@@ -88,7 +88,7 @@ fn upload_to_gl(images: &[DynamicImage], descriptor: &[&TextureDescriptor]) -> V
             let (color_type, data_ptr) = match image.color() {
                 image::ColorType::Rgb8 => (gl::RGB, image.as_rgb8().unwrap().as_ptr()),
                 image::ColorType::Rgba8 => (gl::RGBA, image.as_rgba8().unwrap().as_ptr()),
-                _ => panic!("Tipo nao tratado: {:?}", image.color()),
+                _ => panic!("Type not treated {:?}", image.color()),
             };
 
             gl::TexImage2D(

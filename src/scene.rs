@@ -1,6 +1,6 @@
-use crate::{camera, geometry::*};
-use crate::transformation::Transformation;
 use crate::camera::Camera;
+use crate::transformation::Transformation;
+use crate::{camera, geometry::*};
 
 pub struct Scene<'a> {
     geometries: Vec<Geometry<'a>>,
@@ -42,12 +42,23 @@ impl<'a> Scene<'a> {
         }
     }
 
-    pub fn key_event(&mut self, key: glfw::Key, _scancode: i32, action: glfw::Action, _modifiers: glfw::Modifiers) -> bool {
+    pub fn key_event(
+        &mut self,
+        key: glfw::Key,
+        _scancode: i32,
+        action: glfw::Action,
+        _modifiers: glfw::Modifiers,
+    ) -> bool {
         let used = self.camera.key_event(key, _scancode, action, _modifiers);
         return used;
     }
 
-    pub fn mouse_press_event(&mut self, mouseButton: glfw::MouseButton, action: glfw::Action, modifier: glfw::Modifiers) -> bool {
+    pub fn mouse_press_event(
+        &mut self,
+        mouseButton: glfw::MouseButton,
+        action: glfw::Action,
+        modifier: glfw::Modifiers,
+    ) -> bool {
         false
     }
 
