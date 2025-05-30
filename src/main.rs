@@ -1,12 +1,9 @@
 use bevy::prelude::*;
 use tacagaita::enums::GameState;
 
-enum PrimaryState {
-    MenuState,
-    Game2DState,
-    Game3DState,
-    ExitState
-}
+use tacagaita::main_menu::Volume;
+use tacagaita::splash_screen_plugin::splash_screen_plugin;
+use tacagaita::main_menu::main_menu_plugin;
 
 #[derive(Resource, Debug, Component, PartialEq, Eq, Clone, Copy)]
 pub enum DisplayQuality {
@@ -15,9 +12,6 @@ pub enum DisplayQuality {
     High,
 }
 
-#[derive(Resource, Debug, Component, PartialEq, Eq, Clone, Copy)]
-pub struct Volume(pub u32);
-
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
@@ -25,10 +19,13 @@ fn main() {
         .insert_resource(Volume(7))
         .init_state::<GameState>()
         .add_systems(Startup, initial_setup)
+        .add_plugins((
+            splash_screen_plugin,
+            main_menu_plugin
+        ))
         .run();
 }
 
 fn initial_setup(mut commands: Commands) {
     commands.spawn(Camera2d);
 }
-

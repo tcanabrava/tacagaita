@@ -5,6 +5,7 @@ use crate::enums::GameState;
 pub fn despawn_screen<T: Component>(
     to_despawn: Query<Entity, With<T>>,
     mut commands: Commands) {
+    bevy::log::info!("Despawning screen");
     for entity in &to_despawn {
         commands.entity(entity).despawn();
     }
@@ -16,7 +17,7 @@ pub fn cancel_game(
     mut game_state: ResMut<NextState<GameState>>
 ) {
     if keyboard_input.just_pressed(KeyCode::Escape) {
-        game_state.set(GameState::Menu)
+        game_state.set(GameState::MainMenu)
     }
 }
 
