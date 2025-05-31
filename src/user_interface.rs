@@ -65,6 +65,18 @@ pub fn create_button<T: Bundle, R: Relationship>(
     ])).id()
 }
 
+pub fn create_button_2<T: Bundle>(
+    text: &str,
+    icon: Option<Handle<Image>>,
+    handle_flag: T,
+    style: &MenuStyles,
+) -> impl Bundle {
+    _ = icon;
+    (style.button_style.clone(), Button, handle_flag, children![
+        (Text::new(text), style.text_font.clone(), TextColor(colors::TEXT_COLOR))
+    ])
+}
+
 pub fn main_bundle<T: Bundle>(val: T) -> impl Bundle {
     (
         Node {

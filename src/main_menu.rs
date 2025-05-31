@@ -5,7 +5,7 @@ use helpers::despawn_screen;
 
 use crate::{enums, helpers};
 use crate::user_interface::{
-    colors, create_button, main_bundle, create_text, horizontal_layout, vertical_layout,
+    colors, create_button, create_button_2, main_bundle, create_text, horizontal_layout, vertical_layout,
     MenuStyles,
 };
 
@@ -124,21 +124,14 @@ fn settings_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     bevy::log::info!("Setting up the Settings Menu");
     let styles = MenuStyles::new();
     commands
-        .spawn(main_bundle(OnSettings))
-        .with_children(|p| {
-            p.spawn(vertical_layout(CRIMSON.into())).with_children(|p| {
-                p.spawn(create_text("Settings"));
-
-                let buttons = [
-                    (MenuButtonAction::SettingsDisplay, "Video"),
-                    (MenuButtonAction::SettingsSound, "Audio"),
-                    (MenuButtonAction::BackToMainMenu, "Back"),
-                ];
-                for (handle_flag, text) in buttons {
-                    create_button(p, text, None, handle_flag, &styles);
-                }
-            });
-        });
+        .spawn((main_bundle(OnSettings), children![
+            (vertical_layout(CRIMSON.into()), children![
+                create_text("Settings"),
+             create_button_2("Video", None, MenuButtonAction::SettingsDisplay, &styles),
+             create_button_2("Audio", None, MenuButtonAction::SettingsSound, &styles),
+             create_button_2("Back", None, MenuButtonAction::BackToMainMenu, &styles),
+            ])
+        ]));
 }
 
 fn display_setup(
