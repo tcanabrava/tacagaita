@@ -11,6 +11,7 @@ pub fn despawn_screen<T: Component>(
     }
 }
 
+
 /* Return to the main menu from within the game */
 pub fn cancel_game(
     keyboard_input: Res<ButtonInput<KeyCode>>,

@@ -4,6 +4,7 @@ use tacagaita::enums::GameState;
 use tacagaita::main_menu::Volume;
 use tacagaita::splash_screen_plugin::splash_screen_plugin;
 use tacagaita::main_menu::main_menu_plugin;
+use tacagaita::game_init_screen::game_init_screen_plugin;
 
 #[derive(Resource, Debug, Component, PartialEq, Eq, Clone, Copy)]
 pub enum DisplayQuality {
@@ -21,7 +22,8 @@ fn main() {
         .add_systems(Startup, initial_setup)
         .add_plugins((
             splash_screen_plugin,
-            main_menu_plugin
+            main_menu_plugin,
+            game_init_screen_plugin,
         ))
         .run();
 }

@@ -1,4 +1,4 @@
-use bevy::{ecs::relationship::{Relationship, RelatedSpawnerCommands}, prelude::*};
+use bevy::{ecs::{relationship::{RelatedSpawnerCommands, Relationship}, world}, prelude::*};
 
 pub mod colors {
     use bevy::color::Color;
@@ -97,7 +97,7 @@ pub fn horizontal_layout() -> Node {
     }
 }
 
-pub fn vertical_layout(color: BackgroundColor) -> Node {
+pub fn vertical_layout(color: BackgroundColor) -> impl Bundle {
     _ = color;
     Node {
         flex_direction: FlexDirection::Column,

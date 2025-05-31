@@ -33,10 +33,11 @@ struct OnSound;
 
 // Current selected menu option.
 #[derive(Component)]
-struct SelectedOption;
+struct SelectedOption(String);
 
 #[derive(Component)]
 enum MenuButtonAction {
+    Play,
     Settings,
     SettingsDisplay,
     SettingsSound,
@@ -95,43 +96,29 @@ fn menu_setup(mut menu_state: ResMut<NextState<MenuState>>) {
 fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     bevy::log::info!("Setting up main menu");
     let styles = MenuStyles::new();
-    commands
-        .spawn(main_bundle(OnMainMenu))
-        .with_children(|p| {
-            p.spawn(vertical_layout(CRIMSON.into())).with_children(|p| {
-                p.spawn(create_text("Breakout!"));
-                let buttons = [
-                    (
-                        MenuButtonAction::Settings,
-                        "Settings",
-                        Some(asset_server.load("textures/icons/exitRight.png")),
-                    ),
-                    (
-                        MenuButtonAction::Quit,
-                        "Quit",
-                        Some(asset_server.load("textures/icons/exitRight.png")),
-                    ),
-                ];
-                for (handle_flag, text, icon) in buttons {
-                    create_button(p, text, icon, handle_flag, &styles);
-                }
-            });
-        });
+
+    let inner_layout = (vertical_layout(CRIMSON.into()), children![
+        create_text("Tacagaita"),
+        create_button_2("Play", Some(asset_server.load("textures/icons/exitRight.png")), MenuButtonAction::Play, &styles),
+        create_button_2("Settings", Some(asset_server.load("textures/icons/exitRight.png")), MenuButtonAction::Settings, &styles),
+        create_button_2("Quit", Some(asset_server.load("textures/icons/exitRight.png")), MenuButtonAction::Quit, &styles)
+    ]);
+
+    commands.spawn((main_bundle(OnMainMenu), children![inner_layout]));
 }
 
 fn settings_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     _ = asset_server;
     bevy::log::info!("Setting up the Settings Menu");
     let styles = MenuStyles::new();
-    commands
-        .spawn((main_bundle(OnSettings), children![
-            (vertical_layout(CRIMSON.into()), children![
-                create_text("Settings"),
-             create_button_2("Video", None, MenuButtonAction::SettingsDisplay, &styles),
-             create_button_2("Audio", None, MenuButtonAction::SettingsSound, &styles),
-             create_button_2("Back", None, MenuButtonAction::BackToMainMenu, &styles),
-            ])
-        ]));
+    let main_layout = (vertical_layout(CRIMSON.into()), children![
+        create_text("Settings"),
+        create_button_2("Video", None, MenuButtonAction::SettingsDisplay, &styles),
+        create_button_2("Audio", None, MenuButtonAction::SettingsSound, &styles),
+        create_button_2("Back", None, MenuButtonAction::BackToMainMenu, &styles),
+    ]);
+
+    commands.spawn((main_bundle(OnSettings), children![main_layout]));
 }
 
 fn display_setup(
@@ -142,6 +129,7 @@ fn display_setup(
     bevy::log::info!("Setting up the Video Menu");
     let styles = MenuStyles::new();
     let mut selected_entity: Option<Entity> = None;
+
     commands
         .spawn(main_bundle(OnDisplay))
         .with_children(|p| {
@@ -176,7 +164,7 @@ fn display_setup(
         });
 
     if let Some(entity) = selected_entity {
-        commands.get_entity(entity).unwrap().insert(SelectedOption);
+        commands.get_entity(entity).unwrap().insert(SelectedOption("".into()));
     }
 }
 
@@ -220,7 +208,7 @@ fn sound_setup(mut commands: Commands, asset_server: Res<AssetServer>, volume: R
         });
 
     if let Some(btn) = selected_btn {
-        commands.get_entity(btn).unwrap().insert(SelectedOption);
+        commands.get_entity(btn).unwrap().insert(SelectedOption("".into()));
     }
 }
 
@@ -264,6 +252,11 @@ fn menu_action(
                 bevy::log::info!("Entering the Settings Menu");
                 menu_state.set(MenuState::Settings);
             }
+            MenuButtonAction::Play => {
+                bevy::log::info!("Requesting to play the game.");
+                menu_state.set(MenuState::Disabled);
+                game_state.set(GameState::Play);
+            }
             MenuButtonAction::SettingsDisplay => {
                 bevy::log::info!("Entering the Display Settings Menu");
                 menu_state.set(MenuState::SettingsDisplay);
@@ -300,7 +293,7 @@ fn setting_button<T: Resource + Component + PartialEq + Copy>(
         }
         *previous_color = colors::NORMAL.into();
         commands.entity(previous_btn).remove::<SelectedOption>();
-        commands.entity(entity).insert(SelectedOption);
+        commands.entity(entity).insert(SelectedOption("".into()));
         *setting = *btn_setting;
     }
 }

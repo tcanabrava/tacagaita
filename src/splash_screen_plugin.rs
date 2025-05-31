@@ -18,7 +18,7 @@ fn splash_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     bevy::log::info!("Splash setup");
     commands.spawn((Text2d::new("Splash Text"), OnSplashScreen));
     commands.insert_resource(
-        SplashTimer(Timer::from_seconds(3.0, TimerMode::Once))
+        SplashTimer(Timer::from_seconds(1.0, TimerMode::Once))
     );
 }
 
