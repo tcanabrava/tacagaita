@@ -5,7 +5,7 @@ use helpers::despawn_screen;
 
 use crate::{enums, helpers};
 use crate::user_interface::{
-    colors, create_button, create_main_bundle, create_text, horizontal_layout, vertical_layout,
+    colors, create_button, main_bundle, create_text, horizontal_layout, vertical_layout,
     MenuStyles,
 };
 
@@ -96,7 +96,7 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     bevy::log::info!("Setting up main menu");
     let styles = MenuStyles::new();
     commands
-        .spawn(create_main_bundle(OnMainMenu))
+        .spawn(main_bundle(OnMainMenu))
         .with_children(|p| {
             p.spawn(vertical_layout(CRIMSON.into())).with_children(|p| {
                 p.spawn(create_text("Breakout!"));
@@ -124,7 +124,7 @@ fn settings_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     bevy::log::info!("Setting up the Settings Menu");
     let styles = MenuStyles::new();
     commands
-        .spawn(create_main_bundle(OnSettings))
+        .spawn(main_bundle(OnSettings))
         .with_children(|p| {
             p.spawn(vertical_layout(CRIMSON.into())).with_children(|p| {
                 p.spawn(create_text("Settings"));
@@ -150,7 +150,7 @@ fn display_setup(
     let styles = MenuStyles::new();
     let mut selected_entity: Option<Entity> = None;
     commands
-        .spawn(create_main_bundle(OnDisplay))
+        .spawn(main_bundle(OnDisplay))
         .with_children(|p| {
             p.spawn(vertical_layout(CRIMSON.into())).with_children(|p| {
                 p.spawn(create_text("Video Settings"));
@@ -193,7 +193,7 @@ fn sound_setup(mut commands: Commands, asset_server: Res<AssetServer>, volume: R
     let mut selected_btn: Option<Entity> = None;
 
     commands
-        .spawn(create_main_bundle(OnSound))
+        .spawn(main_bundle(OnSound))
         .with_children(|p| {
             p.spawn(vertical_layout(CRIMSON.into())).with_children(|p| {
                 p.spawn(create_text("Audio Settings"));

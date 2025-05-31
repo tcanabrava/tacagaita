@@ -40,7 +40,7 @@ impl MenuStyles {
     }
 }
 
-pub fn create_text(text: &str) -> (Text, TextFont, TextColor) {
+pub fn create_text(text: &str) -> impl Bundle {
     (
         Text::new(text),
         TextFont {
@@ -59,12 +59,13 @@ pub fn create_button<T: Bundle, R: Relationship>(
     handle_flag: T,
     style: &MenuStyles,
 ) -> Entity {
+    _ = icon;
     c.spawn((style.button_style.clone(), Button, handle_flag, children![
         (Text::new(text), style.text_font.clone(), TextColor(colors::TEXT_COLOR))
     ])).id()
 }
 
-pub fn create_main_bundle<T: Bundle>(val: T) -> (Node, T) {
+pub fn main_bundle<T: Bundle>(val: T) -> impl Bundle {
     (
         Node {
             width: Val::Percent(100.0),
