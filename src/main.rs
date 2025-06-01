@@ -1,17 +1,10 @@
 use bevy::prelude::*;
-use tacagaita::enums::GameState;
+use tacagaita::enums::{GameState, DisplayQuality};
 
 use tacagaita::main_menu::Volume;
 use tacagaita::splash_screen_plugin::splash_screen_plugin;
 use tacagaita::main_menu::main_menu_plugin;
 use tacagaita::game_init_screen::game_init_screen_plugin;
-
-#[derive(Resource, Debug, Component, PartialEq, Eq, Clone, Copy)]
-pub enum DisplayQuality {
-    Low,
-    Medium,
-    High,
-}
 
 fn main() {
     App::new()

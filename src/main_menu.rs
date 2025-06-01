@@ -1,3 +1,4 @@
+use bevy::ecs::spawn::{SpawnIter, SpawnWith};
 use bevy::{color::palettes::css::CRIMSON, log, prelude::*};
 use strum::IntoEnumIterator;
 use enums::{GameState, DisplayQuality};
@@ -171,45 +172,47 @@ fn display_setup(
 fn sound_setup(mut commands: Commands, asset_server: Res<AssetServer>, volume: Res<Volume>) {
     bevy::log::info!("Setting up the Sound Menu");
     let styles = MenuStyles::new();
-    let mut selected_btn: Option<Entity> = None;
 
-    commands
-        .spawn(main_bundle(OnSound))
-        .with_children(|p| {
-            p.spawn(vertical_layout(CRIMSON.into())).with_children(|p| {
-                p.spawn(create_text("Audio Settings"));
-                p.spawn(create_text("Volume"));
-                p.spawn(horizontal_layout()).with_children(|p| {
-                    let mut inner_style = MenuStyles::new();
-                    inner_style.button_style.width = Val::Px(30.0);
-                    inner_style.button_style.height = Val::Px(65.0);
+    let mut btn_style = MenuStyles::new();
+    btn_style.button_style.width = Val::Px(30.0);
+    btn_style.button_style.height = Val::Px(65.0);
 
-                    for idx in 1..10 {
-                        let btn = create_button(
-                            p,
-                            idx.to_string().as_str(),
-                            None,
-                            Volume(idx),
-                            &inner_style,
-                        );
-                        if volume.0 == idx {
-                            selected_btn = Some(btn);
-                        }
-                    }
-                });
-                create_button(
-                    p,
-                    "Back",
-                    Some(asset_server.load("")),
-                    MenuButtonAction::BackToSettings,
-                    &styles,
-                );
-            });
-        });
+    let volume = *volume;
 
-    if let Some(btn) = selected_btn {
-        commands.get_entity(btn).unwrap().insert(SelectedOption("".into()));
-    }
+    let volume_layout = (horizontal_layout(), Children::spawn((
+        Spawn(Name::new("volume_labels")),
+        SpawnWith(move |p: &mut ChildSpawner| {
+            for idx in 1..=10 {
+                let mut entity = p.spawn(create_button_2(
+                    idx.to_string().as_str(),
+                    None,
+                    Volume(idx),
+                    &btn_style
+                ));
+
+                if idx == volume.0 {
+                    entity.insert(SelectedOption("".into()));
+                } 
+            }
+        }
+    ))));
+
+    let vertical_layout = (
+        vertical_layout(CRIMSON.into()), children![
+            create_text("Audio Settings"),
+            create_text("Volume"),
+            volume_layout,
+            create_button_2(
+                "Back",
+                Some(asset_server.load("")),
+                MenuButtonAction::BackToSettings,
+                &styles,
+            )
+        ]);
+
+    commands.spawn((main_bundle(OnSound), children![
+        vertical_layout
+    ]));
 }
 
 // This system changes the colors of the buttons based on mouse movement.
@@ -219,7 +222,8 @@ fn button_system(
         (Changed<Interaction>, With<Button>),
     >,
 ) {
-    for (interaction, mut background_color, selected) in &mut interaction_query {
+    for (interaction, mut background_color, selected) 
+        in &mut interaction_query {
         *background_color = match (*interaction, selected) {
             (Interaction::Pressed, _) | (Interaction::None, Some(_)) => colors::PRESSED.into(),
             (Interaction::Hovered, Some(_)) => colors::HOVER_PRESSED.into(),
@@ -278,13 +282,13 @@ fn menu_action(
 }
 
 fn setting_button<T: Resource + Component + PartialEq + Copy>(
-    interaction_query: Query<(&Interaction, &T, Entity), (Changed<Interaction>, With<Button>)>,
+    mut interaction_query: Query<(&Interaction, &T, Entity), (Changed<Interaction>, With<Button>, Without<SelectedOption>)>,
     selected_query: Single<(Entity, &mut BackgroundColor), With<SelectedOption>>,
     mut commands: Commands,
     mut setting: ResMut<T>,
 ) {
     let (previous_btn, mut previous_color) = selected_query.into_inner();
-    for (interaction, btn_setting, entity) in &interaction_query {
+    for (interaction, btn_setting, entity ) in &mut interaction_query {
         if *interaction != Interaction::Pressed {
             continue;
         }
