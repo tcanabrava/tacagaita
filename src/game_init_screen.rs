@@ -1,6 +1,6 @@
-use bevy::{color::palettes::css::CRIMSON, prelude::*};
+use bevy::{color::palettes::css::CRIMSON, ecs::spawn::SpawnWith, prelude::*};
 
-use crate::{enums::GameState, user_interface::{colors, horizontal_layout, vertical_layout, MenuStyles}};
+use crate::{enums::GameState, user_interface::{colors, create_button_2, horizontal_layout, vertical_layout, MenuStyles}};
 use crate::user_interface::create_text;
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
@@ -53,20 +53,28 @@ fn menu_setup(mut menu_state: ResMut<NextState<GameInitState>>) {
 
 fn this_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut menu_state: ResMut<NextState<GameInitState>>) {
     bevy::log::info!("Initial Gameplay Menu");
-
+    let selected_artist = "Janis Joplin";
     // TODO: Maybe the artists should be an Entity?
     let artists = vec!["Janis Joplin", "Bob Dylan", "Ray Charles", "Joan Baez"];
     let style = MenuStyles::new();
 
-    commands.spawn(horizontal_layout()).with_children(|p|{
-        p.spawn(vertical_layout(CRIMSON.into())).with_children(|p|{
+    let v_layout = (vertical_layout(CRIMSON.into()), Children::spawn(
+        SpawnWith(move |p: &mut ChildSpawner| {
             for artist in artists {
-            p.spawn((style.button_style.clone(), Button, Artist(artist.into()), children![
-                (Text::new(artist), style.text_font.clone(), TextColor(colors::TEXT_COLOR))
-                ]));
+                let entity = create_button_2(artist, None, Artist(artist.into()), &style);
+                let mut entity = p.spawn(entity);
+
+                if artist == selected_artist {
+                    entity.insert(SelectedOption("".into()));
+                }
             }
-        });
-    });
+        })
+    ));
+
+    commands.spawn((horizontal_layout(), children![
+        v_layout
+    ]));
+    
     menu_state.set(GameInitState::WaitingForArtist);
 }
 

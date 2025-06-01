@@ -51,20 +51,6 @@ pub fn create_text(text: &str) -> impl Bundle {
     )
 }
 
-// TODO: Change this so it doesn't rely on the ChildBuiler.
-pub fn create_button<T: Bundle, R: Relationship>(
-    c: &mut RelatedSpawnerCommands<'_, R>,
-    text: &str,
-    icon: Option<Handle<Image>>,
-    handle_flag: T,
-    style: &MenuStyles,
-) -> Entity {
-    _ = icon;
-    c.spawn((style.button_style.clone(), Button, handle_flag, children![
-        (Text::new(text), style.text_font.clone(), TextColor(colors::TEXT_COLOR))
-    ])).id()
-}
-
 pub fn create_button_2<T: Bundle>(
     text: &str,
     icon: Option<Handle<Image>>,

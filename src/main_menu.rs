@@ -6,7 +6,7 @@ use helpers::despawn_screen;
 
 use crate::{enums, helpers};
 use crate::user_interface::{
-    colors, create_button, create_button_2, main_bundle, create_text, horizontal_layout, vertical_layout,
+    colors, create_button_2, main_bundle, create_text, horizontal_layout, vertical_layout,
     MenuStyles,
 };
 
@@ -137,13 +137,13 @@ fn display_setup(
             p.spawn(vertical_layout(CRIMSON.into())).with_children(|p| {
                 p.spawn(create_text("Video Settings"));
                 for val in DisplayQuality::iter() {
-                    let entity = create_button(
-                        p,
+                    let entity = create_button_2(
                         format!("{val:?}").as_str(),
                         Some(asset_server.load("")),
                         val,
                         &styles,
                     );
+                    let entity = p.spawn(entity);
                     // We can't borrow commands again here and change it
                     // directly, so we create a temporary `selected_entity`
                     // and set it.
@@ -151,16 +151,16 @@ fn display_setup(
                     // if there's anything selected, and add the entity of
                     // Selected Option to it.
                     if *display_quality == val {
-                        selected_entity = Some(entity);
+                        selected_entity = Some(entity.id());
                     }
                 }
-                create_button(
-                    p,
+                let entity = create_button_2(
                     "Back",
                     Some(asset_server.load("")),
                     MenuButtonAction::BackToSettings,
                     &styles,
                 );
+                p.spawn(entity);
             });
         });
 
