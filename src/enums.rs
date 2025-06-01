@@ -6,7 +6,7 @@ pub enum GameState {
     Splash,
     MainMenu,
     Play,
-    Exit
+    Exit,
 }
 
 #[derive(Resource, Debug, Component, PartialEq, Eq, Clone, Copy, strum::EnumIter)]

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 #[derive(Component)]
 struct Player {
-    name: String
+    name: String,
 }
 #[derive(Component)]
 struct Xp(i32);
@@ -17,7 +17,7 @@ enum Bend {
     None,
     Hole,
     Half,
-    OverBend
+    OverBend,
 }
 
 #[derive(Component)]
@@ -25,13 +25,12 @@ struct Note {
     hole: u8,
     bend: Bend,
     start: i32,
-    duration: i32
+    duration: i32,
 }
 
 #[derive(Component)]
 struct Harmonica {
     name: String,
     brand: String,
-    image: String
+    image: String,
 }
-

@@ -1,4 +1,10 @@
-use bevy::{ecs::{relationship::{RelatedSpawnerCommands, Relationship}, world}, prelude::*};
+use bevy::{
+    ecs::{
+        relationship::{RelatedSpawnerCommands, Relationship},
+        world,
+    },
+    prelude::*,
+};
 
 pub mod colors {
     use bevy::color::Color;
@@ -58,9 +64,16 @@ pub fn create_button_2<T: Bundle>(
     style: &MenuStyles,
 ) -> impl Bundle {
     _ = icon;
-    (style.button_style.clone(), Button, handle_flag, children![
-        (Text::new(text), style.text_font.clone(), TextColor(colors::TEXT_COLOR))
-    ])
+    (
+        style.button_style.clone(),
+        Button,
+        handle_flag,
+        children![(
+            Text::new(text),
+            style.text_font.clone(),
+            TextColor(colors::TEXT_COLOR)
+        )],
+    )
 }
 
 pub fn main_bundle<T: Bundle>(val: T) -> impl Bundle {

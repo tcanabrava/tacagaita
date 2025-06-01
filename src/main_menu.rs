@@ -1,14 +1,14 @@
 use bevy::ecs::spawn::{SpawnIter, SpawnWith};
 use bevy::{color::palettes::css::CRIMSON, log, prelude::*};
-use strum::IntoEnumIterator;
-use enums::{GameState, DisplayQuality};
+use enums::{DisplayQuality, GameState};
 use helpers::despawn_screen;
+use strum::IntoEnumIterator;
 
-use crate::{enums, helpers};
 use crate::user_interface::{
-    colors, create_button_2, main_bundle, create_text, horizontal_layout, vertical_layout,
-    MenuStyles,
+    MenuStyles, colors, create_button_2, create_text, horizontal_layout, main_bundle,
+    vertical_layout,
 };
+use crate::{enums, helpers};
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 enum MenuState {
@@ -53,10 +53,7 @@ pub fn main_menu_plugin(app: &mut App) {
         .add_systems(OnEnter(GameState::MainMenu), menu_setup)
         // Main Menu
         .add_systems(OnEnter(MenuState::Main), main_menu_setup)
-        .add_systems(
-            OnExit(MenuState::Main),
-            despawn_screen::<OnMainMenu>,
-        )
+        .add_systems(OnExit(MenuState::Main), despawn_screen::<OnMainMenu>)
         // Settings Menu
         .add_systems(OnEnter(MenuState::Settings), settings_setup)
         .add_systems(
@@ -98,12 +95,30 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     bevy::log::info!("Setting up main menu");
     let styles = MenuStyles::new();
 
-    let inner_layout = (vertical_layout(CRIMSON.into()), children![
-        create_text("Tacagaita"),
-        create_button_2("Play", Some(asset_server.load("textures/icons/exitRight.png")), MenuButtonAction::Play, &styles),
-        create_button_2("Settings", Some(asset_server.load("textures/icons/exitRight.png")), MenuButtonAction::Settings, &styles),
-        create_button_2("Quit", Some(asset_server.load("textures/icons/exitRight.png")), MenuButtonAction::Quit, &styles)
-    ]);
+    let inner_layout = (
+        vertical_layout(CRIMSON.into()),
+        children![
+            create_text("Tacagaita"),
+            create_button_2(
+                "Play",
+                Some(asset_server.load("textures/icons/exitRight.png")),
+                MenuButtonAction::Play,
+                &styles
+            ),
+            create_button_2(
+                "Settings",
+                Some(asset_server.load("textures/icons/exitRight.png")),
+                MenuButtonAction::Settings,
+                &styles
+            ),
+            create_button_2(
+                "Quit",
+                Some(asset_server.load("textures/icons/exitRight.png")),
+                MenuButtonAction::Quit,
+                &styles
+            )
+        ],
+    );
 
     commands.spawn((main_bundle(OnMainMenu), children![inner_layout]));
 }
@@ -112,12 +127,15 @@ fn settings_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     _ = asset_server;
     bevy::log::info!("Setting up the Settings Menu");
     let styles = MenuStyles::new();
-    let main_layout = (vertical_layout(CRIMSON.into()), children![
-        create_text("Settings"),
-        create_button_2("Video", None, MenuButtonAction::SettingsDisplay, &styles),
-        create_button_2("Audio", None, MenuButtonAction::SettingsSound, &styles),
-        create_button_2("Back", None, MenuButtonAction::BackToMainMenu, &styles),
-    ]);
+    let main_layout = (
+        vertical_layout(CRIMSON.into()),
+        children![
+            create_text("Settings"),
+            create_button_2("Video", None, MenuButtonAction::SettingsDisplay, &styles),
+            create_button_2("Audio", None, MenuButtonAction::SettingsSound, &styles),
+            create_button_2("Back", None, MenuButtonAction::BackToMainMenu, &styles),
+        ],
+    );
 
     commands.spawn((main_bundle(OnSettings), children![main_layout]));
 }
@@ -131,41 +149,42 @@ fn display_setup(
     let styles = MenuStyles::new();
     let mut selected_entity: Option<Entity> = None;
 
-    commands
-        .spawn(main_bundle(OnDisplay))
-        .with_children(|p| {
-            p.spawn(vertical_layout(CRIMSON.into())).with_children(|p| {
-                p.spawn(create_text("Video Settings"));
-                for val in DisplayQuality::iter() {
-                    let entity = create_button_2(
-                        format!("{val:?}").as_str(),
-                        Some(asset_server.load("")),
-                        val,
-                        &styles,
-                    );
-                    let entity = p.spawn(entity);
-                    // We can't borrow commands again here and change it
-                    // directly, so we create a temporary `selected_entity`
-                    // and set it.
-                    // when we finish the setup of the menu, we check
-                    // if there's anything selected, and add the entity of
-                    // Selected Option to it.
-                    if *display_quality == val {
-                        selected_entity = Some(entity.id());
-                    }
-                }
+    commands.spawn(main_bundle(OnDisplay)).with_children(|p| {
+        p.spawn(vertical_layout(CRIMSON.into())).with_children(|p| {
+            p.spawn(create_text("Video Settings"));
+            for val in DisplayQuality::iter() {
                 let entity = create_button_2(
-                    "Back",
+                    format!("{val:?}").as_str(),
                     Some(asset_server.load("")),
-                    MenuButtonAction::BackToSettings,
+                    val,
                     &styles,
                 );
-                p.spawn(entity);
-            });
+                let entity = p.spawn(entity);
+                // We can't borrow commands again here and change it
+                // directly, so we create a temporary `selected_entity`
+                // and set it.
+                // when we finish the setup of the menu, we check
+                // if there's anything selected, and add the entity of
+                // Selected Option to it.
+                if *display_quality == val {
+                    selected_entity = Some(entity.id());
+                }
+            }
+            let entity = create_button_2(
+                "Back",
+                Some(asset_server.load("")),
+                MenuButtonAction::BackToSettings,
+                &styles,
+            );
+            p.spawn(entity);
         });
+    });
 
     if let Some(entity) = selected_entity {
-        commands.get_entity(entity).unwrap().insert(SelectedOption("".into()));
+        commands
+            .get_entity(entity)
+            .unwrap()
+            .insert(SelectedOption("".into()));
     }
 }
 
@@ -179,26 +198,30 @@ fn sound_setup(mut commands: Commands, asset_server: Res<AssetServer>, volume: R
 
     let volume = *volume;
 
-    let volume_layout = (horizontal_layout(), Children::spawn((
-        Spawn(Name::new("volume_labels")),
-        SpawnWith(move |p: &mut ChildSpawner| {
-            for idx in 1..=10 {
-                let mut entity = p.spawn(create_button_2(
-                    idx.to_string().as_str(),
-                    None,
-                    Volume(idx),
-                    &btn_style
-                ));
+    let volume_layout = (
+        horizontal_layout(),
+        Children::spawn((
+            Spawn(Name::new("volume_labels")),
+            SpawnWith(move |p: &mut ChildSpawner| {
+                for idx in 1..=10 {
+                    let mut entity = p.spawn(create_button_2(
+                        idx.to_string().as_str(),
+                        None,
+                        Volume(idx),
+                        &btn_style,
+                    ));
 
-                if idx == volume.0 {
-                    entity.insert(SelectedOption("".into()));
-                } 
-            }
-        }
-    ))));
+                    if idx == volume.0 {
+                        entity.insert(SelectedOption("".into()));
+                    }
+                }
+            }),
+        )),
+    );
 
     let vertical_layout = (
-        vertical_layout(CRIMSON.into()), children![
+        vertical_layout(CRIMSON.into()),
+        children![
             create_text("Audio Settings"),
             create_text("Volume"),
             volume_layout,
@@ -208,11 +231,10 @@ fn sound_setup(mut commands: Commands, asset_server: Res<AssetServer>, volume: R
                 MenuButtonAction::BackToSettings,
                 &styles,
             )
-        ]);
+        ],
+    );
 
-    commands.spawn((main_bundle(OnSound), children![
-        vertical_layout
-    ]));
+    commands.spawn((main_bundle(OnSound), children![vertical_layout]));
 }
 
 // This system changes the colors of the buttons based on mouse movement.
@@ -222,8 +244,7 @@ fn button_system(
         (Changed<Interaction>, With<Button>),
     >,
 ) {
-    for (interaction, mut background_color, selected) 
-        in &mut interaction_query {
+    for (interaction, mut background_color, selected) in &mut interaction_query {
         *background_color = match (*interaction, selected) {
             (Interaction::Pressed, _) | (Interaction::None, Some(_)) => colors::PRESSED.into(),
             (Interaction::Hovered, Some(_)) => colors::HOVER_PRESSED.into(),
@@ -282,13 +303,16 @@ fn menu_action(
 }
 
 fn setting_button<T: Resource + Component + PartialEq + Copy>(
-    mut interaction_query: Query<(&Interaction, &T, Entity), (Changed<Interaction>, With<Button>, Without<SelectedOption>)>,
+    mut interaction_query: Query<
+        (&Interaction, &T, Entity),
+        (Changed<Interaction>, With<Button>, Without<SelectedOption>),
+    >,
     selected_query: Single<(Entity, &mut BackgroundColor), With<SelectedOption>>,
     mut commands: Commands,
     mut setting: ResMut<T>,
 ) {
     let (previous_btn, mut previous_color) = selected_query.into_inner();
-    for (interaction, btn_setting, entity ) in &mut interaction_query {
+    for (interaction, btn_setting, entity) in &mut interaction_query {
         if *interaction != Interaction::Pressed {
             continue;
         }
