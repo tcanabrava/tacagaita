@@ -57,7 +57,22 @@ pub fn create_text(text: &str) -> impl Bundle {
     )
 }
 
-pub fn create_button_2<T: Bundle>(
+pub fn create_button(
+    text: &str,
+    icon: Option<Handle<Image>>,
+    style: &MenuStyles,
+) -> impl Bundle {
+    (style.button_style.clone(),
+        Button,
+        children![(
+            Text::new(text),
+            style.text_font.clone(),
+            TextColor(colors::TEXT_COLOR)
+        )],
+    )
+}
+
+pub fn create_button_with_flag<T: Bundle>(
     text: &str,
     icon: Option<Handle<Image>>,
     handle_flag: T,

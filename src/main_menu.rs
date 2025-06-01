@@ -5,7 +5,7 @@ use helpers::despawn_screen;
 use strum::IntoEnumIterator;
 
 use crate::user_interface::{
-    MenuStyles, colors, create_button_2, create_text, horizontal_layout, main_bundle,
+    MenuStyles, colors, create_button_with_flag, create_text, horizontal_layout, main_bundle,
     vertical_layout,
 };
 use crate::{enums, helpers};
@@ -99,19 +99,19 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         vertical_layout(CRIMSON.into()),
         children![
             create_text("Tacagaita"),
-            create_button_2(
+            create_button_with_flag(
                 "Play",
                 Some(asset_server.load("textures/icons/exitRight.png")),
                 MenuButtonAction::Play,
                 &styles
             ),
-            create_button_2(
+            create_button_with_flag(
                 "Settings",
                 Some(asset_server.load("textures/icons/exitRight.png")),
                 MenuButtonAction::Settings,
                 &styles
             ),
-            create_button_2(
+            create_button_with_flag(
                 "Quit",
                 Some(asset_server.load("textures/icons/exitRight.png")),
                 MenuButtonAction::Quit,
@@ -131,9 +131,9 @@ fn settings_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         vertical_layout(CRIMSON.into()),
         children![
             create_text("Settings"),
-            create_button_2("Video", None, MenuButtonAction::SettingsDisplay, &styles),
-            create_button_2("Audio", None, MenuButtonAction::SettingsSound, &styles),
-            create_button_2("Back", None, MenuButtonAction::BackToMainMenu, &styles),
+            create_button_with_flag("Video", None, MenuButtonAction::SettingsDisplay, &styles),
+            create_button_with_flag("Audio", None, MenuButtonAction::SettingsSound, &styles),
+            create_button_with_flag("Back", None, MenuButtonAction::BackToMainMenu, &styles),
         ],
     );
 
@@ -153,7 +153,7 @@ fn display_setup(
         p.spawn(vertical_layout(CRIMSON.into())).with_children(|p| {
             p.spawn(create_text("Video Settings"));
             for val in DisplayQuality::iter() {
-                let entity = create_button_2(
+                let entity = create_button_with_flag(
                     format!("{val:?}").as_str(),
                     Some(asset_server.load("")),
                     val,
@@ -170,7 +170,7 @@ fn display_setup(
                     selected_entity = Some(entity.id());
                 }
             }
-            let entity = create_button_2(
+            let entity = create_button_with_flag(
                 "Back",
                 Some(asset_server.load("")),
                 MenuButtonAction::BackToSettings,
@@ -204,7 +204,7 @@ fn sound_setup(mut commands: Commands, asset_server: Res<AssetServer>, volume: R
             Spawn(Name::new("volume_labels")),
             SpawnWith(move |p: &mut ChildSpawner| {
                 for idx in 1..=10 {
-                    let mut entity = p.spawn(create_button_2(
+                    let mut entity = p.spawn(create_button_with_flag(
                         idx.to_string().as_str(),
                         None,
                         Volume(idx),
@@ -225,7 +225,7 @@ fn sound_setup(mut commands: Commands, asset_server: Res<AssetServer>, volume: R
             create_text("Audio Settings"),
             create_text("Volume"),
             volume_layout,
-            create_button_2(
+            create_button_with_flag(
                 "Back",
                 Some(asset_server.load("")),
                 MenuButtonAction::BackToSettings,

@@ -1,9 +1,8 @@
 use bevy::{color::palettes::css::CRIMSON, ecs::spawn::SpawnWith, prelude::*};
 
-use crate::user_interface::create_text;
 use crate::{
     enums::GameState,
-    user_interface::{MenuStyles, colors, create_button_2, horizontal_layout, vertical_layout},
+    user_interface::{colors, create_button, create_button_with_flag, horizontal_layout, vertical_layout, MenuStyles},
 };
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
@@ -28,17 +27,28 @@ enum Difficulty {
     SuperHard,
 }
 
-#[derive(Component)]
-struct SelectedSong(i32);
+#[derive(Resource, Component, PartialEq, Clone)]
+struct CurrentArtist(
+    String
+);
 
 #[derive(Component)]
-struct Artist(String);
+struct Value(String);
+
+#[derive(Resource)]
+struct CurrentSong(String);
 
 #[derive(Component)]
 struct Song(String);
 
 #[derive(Component)]
-struct SelectedOption(String);
+struct SelectedOption;
+
+#[derive(Component)]
+struct ArtistChoice;
+
+#[derive(Component)]
+struct SongChoice;
 
 pub fn game_init_screen_plugin(app: &mut App) {
     bevy::log::info!("Starting game intro screen");
@@ -48,8 +58,8 @@ pub fn game_init_screen_plugin(app: &mut App) {
         .add_systems(OnEnter(GameInitState::Setup), this_menu_setup)
         .add_systems(
             Update,
-            (artists_button_system).run_if(in_state(GameInitState::WaitingForArtist)),
-        );
+            (artists_button_system, button_system::<CurrentArtist, ArtistChoice>).run_if(in_state(GameInitState::WaitingForArtist)),
+        ).insert_resource(CurrentArtist("None".into()));
 }
 
 fn menu_setup(mut menu_state: ResMut<NextState<GameInitState>>) {
@@ -72,11 +82,12 @@ fn this_menu_setup(
         vertical_layout(CRIMSON.into()),
         Children::spawn(SpawnWith(move |p: &mut ChildSpawner| {
             for artist in artists {
-                let entity = create_button_2(artist, None, Artist(artist.into()), &style);
+                let entity = create_button(artist, None, &style);
                 let mut entity = p.spawn(entity);
-
+                entity.insert(CurrentArtist(artist.into()));
+                entity.insert(ArtistChoice);
                 if artist == selected_artist {
-                    entity.insert(SelectedOption("".into()));
+                    entity.insert(SelectedOption);
                 }
             }
         })),
@@ -94,22 +105,42 @@ fn artists_button_system(
             &Interaction,
             &mut BackgroundColor,
             Option<&SelectedOption>,
-            &Artist,
         ),
         (Changed<Interaction>, With<Button>),
     >,
 ) {
-    for (interaction, mut bg_color, selected, artist) in &mut interaction_query {
+    for (interaction, mut bg_color, selected) in &mut interaction_query {
         *bg_color = match (*interaction, selected) {
-            (Interaction::Pressed, _) => {
-                let log_outptu = format!("Selected {}", artist.0);
-                bevy::log::info!(log_outptu);
-                colors::PRESSED.into()
-            }
+            (Interaction::Pressed, _) => colors::PRESSED.into(),
             (Interaction::None, Some(_)) => colors::PRESSED.into(),
             (Interaction::Hovered, Some(_)) => colors::HOVER_PRESSED.into(),
             (Interaction::Hovered, None) => colors::HOVER.into(),
             (Interaction::None, None) => colors::NORMAL.into(),
         }
+    }
+}
+
+
+fn button_system<SettingType: Resource + Component + PartialEq + Clone, MarkerType: Component>(
+    mut interaction_query: Query<
+        (&Interaction, &SettingType, Entity),
+        (Changed<Interaction>, With<Button>, With<MarkerType>, Without<SelectedOption>),
+    >,
+    selected_query: Single<(Entity, &mut BackgroundColor), With<SelectedOption>>,
+    mut commands: Commands,
+    mut setting: ResMut<SettingType>,
+) {
+    let (previous_btn, mut previous_color) = selected_query.into_inner();
+    for (interaction, btn_setting, entity) in &mut interaction_query {
+        if *interaction != Interaction::Pressed {
+            continue;
+        }
+        if *setting == *btn_setting {
+            continue;
+        }
+        *previous_color = colors::NORMAL.into();
+        commands.entity(previous_btn).remove::<SelectedOption>();
+        commands.entity(entity).insert(SelectedOption);
+        *setting = btn_setting.clone();
     }
 }
