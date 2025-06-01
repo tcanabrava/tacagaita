@@ -4016,6 +4016,8 @@ dependencies = [
  "bevy",
  "bevy_audio",
  "cpal",
+ "serde",
+ "serde_json",
  "strum 0.27.1",
 ]
 

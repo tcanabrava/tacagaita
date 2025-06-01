@@ -1,4 +1,8 @@
+use std::{fmt::Display, path::{Path, PathBuf}};
+
 use bevy::{color::palettes::css::CRIMSON, ecs::spawn::SpawnWith, prelude::*};
+use serde::Deserialize;
+use strum::Display;
 
 use crate::{
     enums::GameState,
@@ -50,6 +54,14 @@ struct ArtistChoice;
 #[derive(Component)]
 struct SongChoice;
 
+#[derive(Deserialize, Debug)]
+struct ArtistInfo {
+    name: String,
+
+    #[serde(skip)]
+    path: PathBuf
+}
+
 pub fn game_init_screen_plugin(app: &mut App) {
     bevy::log::info!("Starting game intro screen");
 
@@ -73,20 +85,35 @@ fn this_menu_setup(
     mut menu_state: ResMut<NextState<GameInitState>>,
 ) {
     bevy::log::info!("Initial Gameplay Menu");
-    let selected_artist = "Janis Joplin";
+    let mut artist_infos = Vec::new();
+
+    for folder in std::fs::read_dir("./assets/songs").unwrap() {
+        let folder: String = folder.unwrap().file_name().into_string().unwrap();
+        let artist_json = format!("./assets/songs/{folder}/info.json");
+        let artist_folder = format!("./assets/songs/{folder}/");
+
+        let file_contents = std::fs::read_to_string(&artist_json).unwrap();
+        let mut artist_info: ArtistInfo = serde_json::from_str(&file_contents).unwrap();
+
+        artist_info.path = artist_folder.into();
+        bevy::log::info!("AAA {:?}", &artist_info);
+
+        artist_infos.push(artist_info);
+    }
+
+    let selected_artist = artist_infos[0].name.clone();
     // TODO: Maybe the artists should be an Entity?
-    let artists = vec!["Janis Joplin", "Bob Dylan", "Ray Charles", "Joan Baez"];
     let style = MenuStyles::new();
 
     let v_layout = (
         vertical_layout(CRIMSON.into()),
         Children::spawn(SpawnWith(move |p: &mut ChildSpawner| {
-            for artist in artists {
-                let entity = create_button(artist, None, &style);
+            for artist in &artist_infos {
+                let entity = create_button(&artist.name, None, &style);
                 let mut entity = p.spawn(entity);
-                entity.insert(CurrentArtist(artist.into()));
+                entity.insert(CurrentArtist(artist.name.clone().into()));
                 entity.insert(ArtistChoice);
-                if artist == selected_artist {
+                if artist.name == *selected_artist {
                     entity.insert(SelectedOption);
                 }
             }
