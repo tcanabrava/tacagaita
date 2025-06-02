@@ -25,6 +25,7 @@ pub struct Volume(pub u32);
 // Tag Components for actions in the menu.
 #[derive(Component)]
 struct OnMainMenu;
+
 #[derive(Component)]
 struct OnSettings;
 #[derive(Component)]

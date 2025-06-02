@@ -113,7 +113,7 @@ fn this_menu_setup(
                 let mut entity = p.spawn(entity);
                 entity.insert(CurrentArtist(artist.name.clone().into()));
                 entity.insert(ArtistChoice);
-                if artist.name == *selected_artist {
+                if artist.name == selected_artist {
                     entity.insert(SelectedOption);
                 }
             }
